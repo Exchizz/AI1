@@ -15,23 +15,24 @@ task main(){
 
 
 	  if(sensor_1 > THRESHOLD && sensor_2 > THRESHOLD){
-		    OnFwdSync(OUT_AB, 80, 0);
+		    OnFwdSync(OUT_AB, 90, 0);
 	  }
 
 
 	  if(sensor_1 < THRESHOLD && sensor_2 < THRESHOLD){
 //		    OnFwdSync(OUT_AB, 0, 0);
 		    Off(OUT_AB);
+		    while(true);
 	  }
 
 	  if(sensor_1 > THRESHOLD){
 		    OnFwd(OUT_A, 0);
-		    OnFwd(OUT_B, 70);
+		    OnFwd(OUT_B, 80);
 	  }
 
 	  if(sensor_2 > THRESHOLD){
 		    OnFwd(OUT_B, 0);
-		    OnFwd(OUT_A, 70);
+		    OnFwd(OUT_A, 80);
 	  }
        }
 }
