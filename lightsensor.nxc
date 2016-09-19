@@ -1,0 +1,23 @@
+task main(){
+string iStr, out;
+int data;
+
+SetSensorLight(IN_1);
+SetSensorLight(IN_2);
+
+while(true){
+  data = Sensor(IN_1);
+
+  iStr = NumToStr(data);
+  out = StrCat("Sensor 1: ",iStr);
+  TextOut(10, LCD_LINE1, out);
+
+  data = Sensor(IN_2);
+
+  iStr = NumToStr(data);
+  out = StrCat("Sensor 2: ",iStr);
+  TextOut(10, LCD_LINE2, out);
+
+
+  }
+}

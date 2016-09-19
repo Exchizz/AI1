@@ -1,0 +1,5 @@
+task main(){
+	while(true){
+		TextOut(10,LCD_LINE1,"Testshizzle:");
+	}
+}

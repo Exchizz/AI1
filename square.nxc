@@ -1,0 +1,10 @@
+task main(){
+  while(true){
+    OnFwdSync(OUT_AB, 75,0);
+    Wait(1500);
+    OnFwdSync(OUT_AB, 0,0);
+    Wait(500);
+    RotateMotorEx(OUT_AB, 25, 180, 100, true, true);
+    Wait(2000);
+  }
+}
