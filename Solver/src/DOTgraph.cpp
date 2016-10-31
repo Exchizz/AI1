@@ -38,8 +38,6 @@ void DOTgraph::addEdge(std::string string1, std::string string2){
 
 }
 
-
-
 std::string name(Point point){
 	std::stringstream ss;
 	ss  << point.x << "." << point.y;
@@ -48,14 +46,12 @@ std::string name(Point point){
 }
 
 
-std::string DOTgraph::visualize(Node node){
-	for(auto child : node.children){
-    if(child != nullptr){
-		    auto textParent = name(node.PosMan);
-		    auto text = visualize(*child);
+std::string DOTgraph::visualize(Node *node){
+	for(auto child : node->children){
+		    auto textParent = name(node->PosMan);
+		    auto text = visualize(child);
 		    addEdge(textParent,text);
-    }
 	}
 
-	return name(node.PosMan);
+	return name(node->PosMan);
 }

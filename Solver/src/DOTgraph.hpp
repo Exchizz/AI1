@@ -25,7 +25,7 @@ public:
 	void SaveGraph(std::string);
 	void addEdge(std::string, std::string);
 
-	std::string visualize(Node);
+	std::string visualize(Node*);
 };
 
 #endif /* DOTGRAPH_H_ */

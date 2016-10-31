@@ -6,7 +6,7 @@ Node::Node(Point PosMan, std::vector<Point> &PosJew){
 }
 
 void Node::Insert(Map & map,Point PosMan, std::vector<Point> &PosJew){
-  if (map[PosMan] != 'X'){
+  if (map[PosMan] == '.'){
     Node * node = new Node(PosMan,PosJew);
     children.push_back(node);
   }

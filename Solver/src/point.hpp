@@ -21,5 +21,6 @@ public:
   unsigned int x;
   unsigned int y;
 };
+std::ostream & operator<< (std::ostream &out, Point  &t);
 
 #endif

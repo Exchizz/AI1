@@ -1,5 +1,6 @@
 #include "map.hpp"
 #include "node.hpp"
+#include "colors.hpp"
 
 #ifndef TREE_H
 #define TREE_H
@@ -7,12 +8,16 @@
 class Tree {
 private:
 public:
-  void GenerateTree(Map &map);
+  std::vector<Point> GenerateTree(Map &map);
   void Insert(Point , Point);
-  void RecursiveSomething(Node &node);
+  //Map * ConstructMap();
+  std::vector<Point> ExploreMap(Node *node);
+  void _ExploreMap(Node *node);
   unsigned int Nodes();
   unsigned int _Nodes(Node*);
   Map map;
   Node * root;
+  std::vector<Point> points;
+  int counter_debug = 0;
 };
 #endif
