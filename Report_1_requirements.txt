@@ -1,0 +1,11 @@
+no conclusion
+
+
+1. functions robot needs to have (list of actions)
+
+2. requirements for robot
+
+3.  what factors will have influence on the speed ...
+
+4. how will you test the report, document performance
+
