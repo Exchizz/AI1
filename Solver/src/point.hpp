@@ -4,17 +4,17 @@
 class Point {
 public:
   Point(unsigned int x, unsigned int y);
-  Point Up(Point pos){
-    return Point( pos.x, pos.y - 1);
+  Point Up(){
+    return Point( x, y - 1);
   }
-  Point Down(Point pos){
-    return Point( pos.x, pos.y + 1);
+  Point Down(){
+    return Point( x, y + 1);
   }
-  Point Left(Point pos){
-    return Point( pos.x -1, pos.y);
+  Point Left(){
+    return Point( x -1,  y);
   }
-  Point Right(Point pos){
-    return Point( pos.x + 1, pos.y);
+  Point Right(){
+    return Point( x + 1, y);
   }
   Point();
   void println();

@@ -20,6 +20,12 @@ class Map {
                 RawMap GetMap();
                 std::vector<Point> Find(char);
                 char operator[](Point);
+                Map& operator=(Map& other){
+                  this->cols = other.cols;
+                  this->rows = other.rows;
+                  this->map = other.map;
+                  this->cans = other.cans;
+                }
 };
 
 #endif

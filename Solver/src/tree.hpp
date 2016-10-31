@@ -8,6 +8,11 @@ class Tree {
 private:
 public:
   void GenerateTree(Map &map);
-  void InsertLeft(PosMan, PosJew);
+  void Insert(Point , Point);
+  void RecursiveSomething(Node &node);
+  unsigned int Nodes();
+  unsigned int _Nodes(Node*);
+  Map map;
+  Node * root;
 };
 #endif

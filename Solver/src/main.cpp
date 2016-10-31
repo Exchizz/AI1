@@ -1,5 +1,6 @@
 #include "map.hpp"
 #include "tree.hpp"
+#include "DOTgraph.hpp"
 
 int main(){
 	Map map;
@@ -18,6 +19,11 @@ int main(){
 
 	Tree tree;
 	tree.GenerateTree(map);
+	std::cout << tree.Nodes() << std::endl;
+
+	DOTgraph graph;
+	graph.visualize(*tree.root);
+	graph.SaveGraph("graph.dot");
 
 return 0;
 }
