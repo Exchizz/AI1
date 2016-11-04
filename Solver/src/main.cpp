@@ -25,8 +25,8 @@ int main(){
 
 	for(auto pos : ManPositions){
 		std::cout << pos << std::endl;
-		tree.map.SetMan(pos);
-		tree.map.PrintMap();
+		//tree.map.SetMan(pos);
+		//tree.map.PrintMap();
 	}
 	// Number of nodes in the tree
 	//std::cout << tree.Nodes() << std::endl;

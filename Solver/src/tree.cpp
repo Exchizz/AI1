@@ -17,6 +17,10 @@ std::vector<Point> Tree::GenerateTree(Map &map){
   //root->Insert(map, PosMan.Right(), PosJew );
   Insert(root, LEFT);
   Insert(root, DOWN);
+  Insert(root, RIGHT);
+  ///Insert(root, UP);
+
+
 
   // NOTE recursively explore the map
   auto ManPositions = ExploreMap(root);
@@ -94,7 +98,7 @@ void Tree::Insert(Node * child, int action){
   if(NewNode == nullptr)
     return;
 
-  auto retpair = NodesInTree.insert(std::make_pair(NewNode,1));
+  auto retpair = NodesInTree.emplace(*NewNode,1);
   if(retpair.second){
     child->children.push_back(NewNode);
   } else {
@@ -104,10 +108,10 @@ void Tree::Insert(Node * child, int action){
 }
 
 void Tree::_ExploreMap(Node *node){
-  if(counter_debug++ > 20)  {
+  if(counter_debug++ > 50)  {
       std::cout << "too many recursive calls " << std::endl;
       return;
-  };
+  }
   std::cout << FMAG("Current node: ") << node->PosMan.x << "," << node->PosMan.y << std::endl;
   for(auto &child : node->children){
       // NOTE Insert four nodes
@@ -118,7 +122,7 @@ void Tree::_ExploreMap(Node *node){
       //Insert(child, UP);
       Insert(child, DOWN);
       Insert(child, LEFT);
-      //Insert(child, RIGHT);
+      Insert(child, RIGHT);
       _ExploreMap(child);
   }
 }

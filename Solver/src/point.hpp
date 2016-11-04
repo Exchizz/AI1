@@ -20,6 +20,10 @@ public:
   void println();
   unsigned int x;
   unsigned int y;
+
+  bool operator==(const Point & lhs) const {
+    return (x == lhs.x && y == lhs.y);
+  }
 };
 std::ostream & operator<< (std::ostream &out, Point  &t);
 
