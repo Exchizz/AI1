@@ -66,10 +66,19 @@ void Map::LoadMap(std::string filename){
 
 void Map::AllocateMemory(int rows, int cols){
 	// Initialize map
-	map = new char*[cols];
-	for(int i = 0; i < cols; i++){
+	map = new char*[cols ];
+	for(int i = 0; i < cols ; i++){
 		map[i] = new char[rows];
 	}
+}
+
+bool Map::inMap(Point position){
+	if(position.x >= cols -1 || position.y >= rows -1){
+		std::cerr << "Out of range" << position << std::endl;
+		return false;
+	}
+
+	return true;
 }
 
 

@@ -30,6 +30,7 @@ class Map {
                   this->map = other.map;
                   this->cans = other.cans;
                 }
+                bool inMap(Point position);
 };
 
 #endif

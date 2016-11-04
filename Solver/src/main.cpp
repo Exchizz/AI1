@@ -20,7 +20,7 @@ int main(){
 	// NOTE end test find
 	Tree tree;
 	auto ManPositions = tree.GenerateTree(map);
-	tree.Nodes();
+	std::cout << " Nodes in tree: " << tree.Nodes() << std::endl;
 	ManPositions = tree.points;
 
 	for(auto pos : ManPositions){
