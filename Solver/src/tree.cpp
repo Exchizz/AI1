@@ -10,18 +10,11 @@ std::vector<Point> Tree::GenerateTree(Map &map){
 
   root = new Node(PosMan,PosJew);
 
-  // NOTE Insert four nodes (depricated)
-  //root->Insert(map, PosMan.Up(), PosJew );
-  //root->Insert(map, PosMan.Down(), PosJew );
-  //root->children[0]->Insert(map, root->children[0]->PosMan.Down(), PosJew);
-  //root->Insert(map, PosMan.Left(), PosJew );
-  //root->Insert(map, PosMan.Right(), PosJew );
+  // NOTE Insert four nodes
   Insert(root, LEFT);
   Insert(root, DOWN);
-  //Insert(root, RIGHT);
-  ///Insert(root, UP);
-
-
+  Insert(root, RIGHT);
+  Insert(root, UP);
 
   // NOTE recursively explore the map
   auto ManPositions = ExploreMap(root);
@@ -65,13 +58,6 @@ Map * Tree::ConstructMap(){
   return NewMap;
 }
 */
-std::vector<Point> Tree::ExploreMap(Node *node){
-  _ExploreMap(node);
-  return points;
-}
-
-
-
 Node * Tree::GenerateNode(Node * child, int action){
   //if (map.inMap(child->PosMan) && map[child->PosMan] != 'X'){
     switch(action){
@@ -146,9 +132,19 @@ void Tree::Insert(Node * parent, int action){
   }
 }
 
+std::vector<Point> Tree::ExploreMap(Node *node){
+  _ExploreMap(node);
+  return points;
+}
+
 void Tree::_ExploreMap(Node *node){
-  if(counter_debug++ > 50)  {
-      std::cout << "too many recursive calls " << std::endl;
+  if(node->discovered){
+    return ;
+  }
+  node->discovered = true;
+
+  if(counter_debug++ > 100)  {
+      std::cout << FMAG("Too many recursive calls") << std::endl;
       return;
   }
   //std::cout << FMAG("Current node: ") << node->PosMan.x << "," << node->PosMan.y << std::endl;
@@ -158,10 +154,10 @@ void Tree::_ExploreMap(Node *node){
       //child->Insert(map, child->PosMan.Down(), child->PosJew );
       //child->Insert(map, child->PosMan.Left(), child->PosJew );
       //child->Insert(map, child->PosMan.Right(), child->PosJew );
-      //Insert(child, UP);
+      Insert(child, UP);
       Insert(child, DOWN);
       Insert(child, LEFT);
-      //Insert(child, RIGHT);
+      Insert(child, RIGHT);
       _ExploreMap(child);
   }
 }

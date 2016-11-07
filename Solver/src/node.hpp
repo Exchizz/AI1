@@ -13,6 +13,7 @@ public:
   Point PosMan;
   std::vector<Point> PosJew;
   bool discovered = false;
+  bool vizDotVisit = false;
 
   bool operator==(const Node & rhs) const {
     bool retval = true;

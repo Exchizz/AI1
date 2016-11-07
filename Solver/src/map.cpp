@@ -83,7 +83,14 @@ bool Map::inMap(Point position){
 
 
 void Map::PrintMap(){
+	std::cout << "   ";
+	for(int x = 0; x < cols; x++){
+		std::cout << x << "  ";
+	}
+	std::cout << std::endl;
+
 	for(int y = 0; y < rows; y++ ){
+		std::cout << y << " ";
 		for(int x = 0; x < cols; x++){
 			switch(map[x][y]){
 				case 'M':
