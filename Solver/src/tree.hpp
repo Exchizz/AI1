@@ -28,6 +28,6 @@ public:
   void Insert(Node * child, int action);
   Node * GenerateNode(Node * child, int action);
 
-  std::unordered_map<Node, int> NodesInTree;
+  std::unordered_map<Node, Node*> NodesInTree;
 };
 #endif

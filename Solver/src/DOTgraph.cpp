@@ -47,10 +47,13 @@ std::string name(Point point){
 
 
 std::string DOTgraph::visualize(Node *node){
-	for(auto child : node->children){
+	if(!node->discovered){
+		node->discovered = true;
+		for(auto &child : node->children){
 		    auto textParent = name(node->PosMan);
 		    auto text = visualize(child);
 		    addEdge(textParent,text);
+		}
 	}
 
 	return name(node->PosMan);

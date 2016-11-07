@@ -1,5 +1,6 @@
 #include "tree.hpp"
 #include <iostream>
+#include <cassert>
 
 std::vector<Point> Tree::GenerateTree(Map &map){
   this->map = map;
@@ -17,7 +18,7 @@ std::vector<Point> Tree::GenerateTree(Map &map){
   //root->Insert(map, PosMan.Right(), PosJew );
   Insert(root, LEFT);
   Insert(root, DOWN);
-  Insert(root, RIGHT);
+  //Insert(root, RIGHT);
   ///Insert(root, UP);
 
 
@@ -32,6 +33,19 @@ unsigned int Tree::Nodes(){
   count = _Nodes(root);
   return count;
 }
+
+unsigned int Tree::_Nodes(Node * node){
+      std::cout << "Node: " << node->PosMan  << std::endl;
+      if(node->children.size() == 0){
+        return 0;
+      }
+      int count = 0;
+      for(auto child : node->children){
+        count += _Nodes(child);
+      }
+      return count + 1;
+}
+/*
 unsigned int Tree::_Nodes(Node* node){
   unsigned int count = 0;
   //std::cout << "children: " << node->children.size() << std::endl;
@@ -41,7 +55,7 @@ unsigned int Tree::_Nodes(Node* node){
   }
   return count;
 }
-
+*/
 /*
 Map * Tree::ConstructMap(){
   // Clone original map. Clone() simply makes a deep copy of the original map.
@@ -92,18 +106,43 @@ Node * Tree::GenerateNode(Node * child, int action){
   return nullptr;
 }
 
-void Tree::Insert(Node * child, int action){
-  auto NewNode = GenerateNode(child, action);
+void Tree::Insert(Node * parent, int action){
+  auto NewNode = GenerateNode(parent, action);
   // If node can't be created, don't insert one
   if(NewNode == nullptr)
     return;
 
-  auto retpair = NodesInTree.emplace(*NewNode,1);
+  auto retpair = NodesInTree.emplace(*NewNode,NewNode); // returns 1 if new node inserted, else 0
+    /*
+      if = iterrator to element
+        element:
+          first: key
+          second: value
+      second = success if insert
+    */
   if(retpair.second){
-    child->children.push_back(NewNode);
+    parent->children.push_back(NewNode);
   } else {
-    delete NewNode; // Cleanup memomory
-    std::cout << "Node already exists, cleaning up" << std::endl;
+    std::cout << "Dublicate node: " << NewNode->PosMan << " parent: " << parent->PosMan << std::endl;
+    delete NewNode; // Delete the newly created node since it already exists. Use the variable NewNode anyways.
+    NewNode = (*retpair.first).second;
+
+
+    int tjek = 0;
+    for(auto elm: parent->children ){
+      std::cout << "\t if: "<< elm->PosMan <<  " newNode: " << NewNode->PosMan << std::endl;
+      if( elm->PosMan == NewNode->PosMan){
+          tjek = 1;
+          std::cout << "child exists, continuing, number of children in parents: " << parent->children.size() << std::endl;
+          return;
+      }
+    }
+
+    assert(tjek <= 1);
+    if(tjek == 0){
+      parent->children.push_back(NewNode);
+      std::cout << "Creating first relation node: child:" << NewNode->PosMan <<  " parent: " << parent->PosMan << " children: " << parent->children.size()  <<  std::endl;
+    }
   }
 }
 
@@ -112,7 +151,7 @@ void Tree::_ExploreMap(Node *node){
       std::cout << "too many recursive calls " << std::endl;
       return;
   }
-  std::cout << FMAG("Current node: ") << node->PosMan.x << "," << node->PosMan.y << std::endl;
+  //std::cout << FMAG("Current node: ") << node->PosMan.x << "," << node->PosMan.y << std::endl;
   for(auto &child : node->children){
       // NOTE Insert four nodes
       //child->Insert(map, child->PosMan.Up(), child->PosJew );
@@ -122,7 +161,7 @@ void Tree::_ExploreMap(Node *node){
       //Insert(child, UP);
       Insert(child, DOWN);
       Insert(child, LEFT);
-      Insert(child, RIGHT);
+      //Insert(child, RIGHT);
       _ExploreMap(child);
   }
 }

@@ -36,8 +36,9 @@ int main(){
 	graph.visualize(tree.root);
 	graph.SaveGraph("graph.dot");
 
+
 	//Map * NewMap = tree.ConstructMap();
 	//NewMap->PrintMap();
-
+std::cout << "Hello world" << std::endl;
 return 0;
 }

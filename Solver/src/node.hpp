@@ -12,6 +12,7 @@ public:
   void Insert(Map &,Point, std::vector<Point> &);
   Point PosMan;
   std::vector<Point> PosJew;
+  bool discovered = false;
 
   bool operator==(const Node & rhs) const {
     bool retval = true;

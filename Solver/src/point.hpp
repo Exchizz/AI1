@@ -21,8 +21,8 @@ public:
   unsigned int x;
   unsigned int y;
 
-  bool operator==(const Point & lhs) const {
-    return (x == lhs.x && y == lhs.y);
+  bool operator==(const Point & rhs) const {
+    return (x == rhs.x && y == rhs.y);
   }
 };
 std::ostream & operator<< (std::ostream &out, Point  &t);
