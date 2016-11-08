@@ -31,6 +31,7 @@ class Map {
                   this->cans = other.cans;
                 }
                 bool inMap(Point position);
+                void setValue(Point pos, int value);
 };
 
 #endif

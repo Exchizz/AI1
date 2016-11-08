@@ -1,6 +1,7 @@
 #include "map.hpp"
 #include "tree.hpp"
 #include "DOTgraph.hpp"
+#include "wavefront.hpp"
 
 int main(){
 	Map map;
@@ -9,32 +10,14 @@ int main(){
 
 	auto jewels = map.Find('J');
 
-	// NOTE Test find
-	/*
-	for(auto j: jewels){
-		j.println();
-	}
-	*/
-  //auto man = map.Find('M');
-	//man[0].println();
-	// NOTE end test find
-	Tree tree;
-	auto ManPositions = tree.GenerateTree(map);
-	//std::cout << " Nodes in tree: " << tree.Nodes() << std::endl;
-	ManPositions = tree.points;
-
-	for(auto pos : ManPositions){
-		std::cout << pos << std::endl;
-		//tree.map.SetMan(pos);
-		//tree.map.PrintMap();
-	}
-	// Number of nodes in the tree
-	//std::cout << tree.Nodes() << std::endl;
+	Wavefront wf1(map);
+	wf1.generate_wavefront( Point(3,3) );
+	wf1.LocalMap.PrintMap();
 
 
-	DOTgraph graph;
-	graph.visualize(tree.root);
-	graph.SaveGraph("graph.dot");
+	//DOTgraph graph;
+	//graph.visualize(tree.root);
+	//graph.SaveGraph("graph.dot");
 
 
 	//Map * NewMap = tree.ConstructMap();

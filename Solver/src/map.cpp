@@ -130,3 +130,7 @@ Map* Map::Clone(){
 	}
 	return map_clone;
 }
+
+void Map::setValue(Point pos, int value){
+	map[pos.x][pos.y] = value;
+}
