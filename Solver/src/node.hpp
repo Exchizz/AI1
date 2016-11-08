@@ -16,6 +16,7 @@ public:
   bool vizDotVisit = false;
 
   bool operator==(const Node & rhs) const {
+    std::cout << "Hit collision " << std::endl;
     bool retval = true;
     for(int i = 0; i < PosJew.size(); i++){
       retval = retval && (PosJew[i] == rhs.PosJew[i]);
@@ -40,11 +41,12 @@ namespace std {
       // second and third and combine them using XOR
       // and bit shifting:
       //std::cout << "hashing " << ((hash<int>()(k.PosMan.x) ^ (hash<int>()(k.PosMan.y) << 1)) >> 1) << std::endl;
+      // Method 1
       int hashz = 0;
       for (size_t i = 0; i < k.PosJew.size(); i++) {
-        hashz = hashz ^ ( (hash<int>()(k.PosJew[i].x)) ^ (hash<int>()(k.PosJew[i].y) << 1) >> 1 );
+        hashz ^= ( (hash<int>()(k.PosJew[i].x)) ^ (hash<int>()(k.PosJew[i].y) << 1) >> 1 );
       }
-      //return ((hash<int>()(k.a) ^ (hash<int>()(k.b) << 1)) >> 1);
+      hashz ^= hash<int>()(k.PosMan.x) ^ hash<int>()(k.PosMan.y);
       return hashz;
     }
   };

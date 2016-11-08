@@ -9,6 +9,8 @@ std::vector<Point> Tree::GenerateTree(Map &map){
   auto PosJew = map.Find('J');
 
   root = new Node(PosMan,PosJew);
+  // Add root note to hashmap
+  NodesInTree.emplace(*root,root);
 
   // NOTE Insert four nodes
   Insert(root, LEFT);
@@ -116,10 +118,10 @@ void Tree::Insert(Node * parent, int action){
 
     int tjek = 0;
     for(auto elm: parent->children ){
-      std::cout << "\t if: "<< elm->PosMan <<  " newNode: " << NewNode->PosMan << std::endl;
+      std::cerr << "\t if: "<< elm->PosMan <<  " newNode: " << NewNode->PosMan << std::endl;
       if( elm->PosMan == NewNode->PosMan){
           tjek = 1;
-          std::cout << "child exists, continuing, number of children in parents: " << parent->children.size() << std::endl;
+          std::cerr << "child exists, continuing, number of children in parents: " << parent->children.size() << std::endl;
           return;
       }
     }
@@ -127,7 +129,7 @@ void Tree::Insert(Node * parent, int action){
     assert(tjek <= 1);
     if(tjek == 0){
       parent->children.push_back(NewNode);
-      std::cout << "Creating first relation node: child:" << NewNode->PosMan <<  " parent: " << parent->PosMan << " children: " << parent->children.size()  <<  std::endl;
+      std::cerr << "Creating first relation node: child:" << NewNode->PosMan <<  " parent: " << parent->PosMan << " children: " << parent->children.size()  <<  std::endl;
     }
   }
 }

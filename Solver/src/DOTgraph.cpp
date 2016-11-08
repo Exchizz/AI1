@@ -49,8 +49,8 @@ std::string name(Point point){
 std::string DOTgraph::visualize(Node *node){
 	if(!node->vizDotVisit){
 		node->vizDotVisit = true;
+		auto textParent = name(node->PosMan);
 		for(auto &child : node->children){
-		    auto textParent = name(node->PosMan);
 		    auto text = visualize(child);
 		    addEdge(textParent,text);
 		}
