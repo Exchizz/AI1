@@ -34,6 +34,8 @@ void DOTgraph::SaveGraph(std::string filename){
 	ofstream myfile;
 	myfile.open (filename.c_str());
 	myfile << "digraph G {" << std::endl;
+
+	// Generate nodes
 	for(auto node : uniq_nodes){
 		auto name = ConcatenatePosAndJew(node);
 		myfile <<  name << " [label=<<TABLE BORDER=\"0\" CELLBORDER=\"0\" CELLSPACING=\"0\"><TR><TD>" << node->PosMan << "</TD></TR>";
@@ -42,7 +44,7 @@ void DOTgraph::SaveGraph(std::string filename){
 		}
 		myfile << "</TABLE>>" << ", shape=\"box\"]" << std::endl;
 	}
-
+	// Assign edges between nodes
 	for(unsigned int i = 0; i < edges.size(); ++i){
 		myfile << edges[i].first << " -> " <<  edges[i].second << std::endl;
 	}
@@ -56,9 +58,6 @@ void DOTgraph::addEdge(std::string string1, std::string string2){
 }
 
 std::string name(Node* node){
-	//std::stringstream ss;
-	//ss << node->PosMan.x << "." << node->PosMan.y << node->PosJew[0].x << "-" << node->PosJew[0].y;
-	//ss << node->PosMan.x << "." << node->PosMan.y;
 	std::string str = ConcatenatePosAndJew(node);
 	return str;
 }
@@ -66,7 +65,6 @@ std::string name(Node* node){
 std::string DOTgraph::visualize(Node *node){
 	if(!node->vizDotVisit){
 		node->vizDotVisit = true;
-		std::cout << "show node: " << node->PosMan << node << std::endl;
 		uniq_nodes.push_back(node);
 		auto textParent = name(node);
 		for(auto &child : node->children){

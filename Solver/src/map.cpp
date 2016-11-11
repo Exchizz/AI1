@@ -55,12 +55,6 @@ void Map::LoadMap(std::string filename){
 	mapfile.get(c,4);
 	cans = ((int)c[1]-'0')*10 + (int)c[2]-'0';
 
-	// Initialize map
-	/*map = new char*[cols];
-	for(int i = 0; i < cols; i++){
-		map[i] = new char[rows];
-	}
-	*/
 	AllocateMemory(cols, rows);
 
 	char b;
@@ -86,7 +80,6 @@ void Map::AllocateMemory(int rows, int cols){
 }
 
 bool Map::inMap(Point position){
-	//std::cout << "tjek: "  << std::endl;
 	if(position.x > cols -1 || position.y > rows -1){
 		std::cerr << "Out of range" << position << std::endl;
 		return false;
@@ -148,7 +141,6 @@ Map* Map::Clone(){
 bool Map::IsPosJew(std::vector<Point> & Jews, Point pos){
 	for(auto elm : Jews){
 		if(elm == pos){
-			//std::cout << "Position is jew" << std::endl;
 			return true;
 		}
 	}
@@ -156,7 +148,6 @@ bool Map::IsPosJew(std::vector<Point> & Jews, Point pos){
 }
 
 bool Map::IsPosWall(Point pos){
-	//std::cout << "IsPosWall: " << pos.x << "," << pos.y << std::endl;
 	return (map[pos.x][pos.y] == 'X');
 }
 
@@ -178,14 +169,10 @@ bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 		switch(action){
 			case LEFT:
 				if(map[pos.x -1][pos.y] == '.'){
-					//std::cout << "TryToMove: " << pos.x - 1 << std::endl;
 					auto NewJewPos = Point(pos.x - 1, pos.y);
 					auto CurrentJewPos = Point(pos.x, pos.y);
-					//std::cout << "Jew can be moved, hit: " << CurrentJewPos << " new: " << NewJewPos << std::endl;
 					MoveJew(Jews, CurrentJewPos, NewJewPos, action);
 				} else {
-					//std::cout << "TryToMove: " << pos.x - 1 << std::endl;
-					//std::cout << "Jew cannot be moved, hit: " << map[pos.x -1][pos.y] << std::endl;
 					return false;
 				}
 				return true;

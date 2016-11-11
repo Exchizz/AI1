@@ -24,9 +24,6 @@ int main(){
 	Tree tree;
 	auto ManPositions = tree.GenerateTree(map);
 
-	std::cout << "node1: " << tree.root->PosMan << " jew: " << tree.root->PosJew[0] << std::endl;
-
-	std::cout << "node2: " << tree.root->children[0]->PosMan << " jew: " << tree.root->children[0]->PosJew[0] << std::endl;
 	DOTgraph graph;
 	graph.visualize(tree.root);
 	graph.SaveGraph("graph.dot");
