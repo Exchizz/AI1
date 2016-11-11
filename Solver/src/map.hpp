@@ -6,6 +6,11 @@
 #include "point.hpp"
 #include "colors.hpp"
 
+#define UP 1
+#define LEFT 2
+#define RIGHT 3
+#define DOWN 4
+
 #ifndef MAP_H
 #define MAP_H
 typedef char ** RawMap;
@@ -31,6 +36,11 @@ class Map {
                   this->cans = other.cans;
                 }
                 bool inMap(Point position);
+                bool TryToMove(Point pos, std::vector<Point> & Jews, int action);
+                void Clean(std::string ToRemove);
+                bool IsPosJew(std::vector<Point> & Jews, Point pos);
+                bool IsPosWall(Point pos);
+                bool IsPosFree(Point pos, std::vector<Point> &Jews);
 };
 
 #endif

@@ -1,5 +1,18 @@
 #include "map.hpp"
 
+
+void Map::Clean(std::string ToRemove){
+	for(int x = 0; x < cols; x++){
+		for(int y = 0; y < rows; y++){
+			for(int i = 0; i < ToRemove.length(); i++){
+		    if(ToRemove[i] == map[x][y]){
+						map[x][y] = '.';
+				}
+			}
+		}
+	}
+}
+
 std::vector<Point> Map::Find(char needle){
 	std::vector<Point> results;
 	for (int x = 0; x < cols; x++){
@@ -73,7 +86,8 @@ void Map::AllocateMemory(int rows, int cols){
 }
 
 bool Map::inMap(Point position){
-	if(position.x >= cols -1 || position.y >= rows -1){
+	//std::cout << "tjek: "  << std::endl;
+	if(position.x > cols -1 || position.y > rows -1){
 		std::cerr << "Out of range" << position << std::endl;
 		return false;
 	}
@@ -129,4 +143,56 @@ Map* Map::Clone(){
 		}
 	}
 	return map_clone;
+}
+
+bool Map::IsPosJew(std::vector<Point> & Jews, Point pos){
+	for(auto elm : Jews){
+		if(elm == pos){
+			//std::cout << "Position is jew" << std::endl;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Map::IsPosWall(Point pos){
+	//std::cout << "IsPosWall: " << pos.x << "," << pos.y << std::endl;
+	return (map[pos.x][pos.y] == 'X');
+}
+
+bool Map::IsPosFree(Point pos, std::vector<Point> &Jews){
+	return(!IsPosJew(Jews, pos) && !IsPosWall(pos));
+}
+
+
+void MoveJew(std::vector<Point> &Jews, Point CurrentJewPos, Point NewJewPos, int action){
+	for(auto & jew: Jews){
+		if(jew == CurrentJewPos){
+				jew = NewJewPos;
+		}
+	}
+}
+
+bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
+	if(IsPosJew(Jews, pos)){
+		switch(action){
+			case LEFT:
+				if(map[pos.x -1][pos.y] == '.'){
+					//std::cout << "TryToMove: " << pos.x - 1 << std::endl;
+					auto NewJewPos = Point(pos.x - 1, pos.y);
+					auto CurrentJewPos = Point(pos.x, pos.y);
+					//std::cout << "Jew can be moved, hit: " << CurrentJewPos << " new: " << NewJewPos << std::endl;
+					MoveJew(Jews, CurrentJewPos, NewJewPos, action);
+				} else {
+					//std::cout << "TryToMove: " << pos.x - 1 << std::endl;
+					//std::cout << "Jew cannot be moved, hit: " << map[pos.x -1][pos.y] << std::endl;
+					return false;
+				}
+				return true;
+			break;
+			default:
+				std::cout << "ERROR: Action not defined, TryToMove" << std::endl;
+		}
+	}
+	return false;
 }

@@ -16,7 +16,7 @@ public:
   bool vizDotVisit = false;
 
   bool operator==(const Node & rhs) const {
-    std::cout << "Hit collision " << std::endl;
+    std::cerr << "Hit collision " << std::endl;
     bool retval = true;
     for(int i = 0; i < PosJew.size(); i++){
       retval = retval && (PosJew[i] == rhs.PosJew[i]);

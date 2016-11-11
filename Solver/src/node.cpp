@@ -1,6 +1,7 @@
 #include "node.hpp"
 
 Node::Node(Point PosMan, std::vector<Point> &PosJew){
+  std::cout << "Jews: " << PosJew[0] << std::endl;
   this->PosMan = PosMan;
   this->PosJew = PosJew;
 }
