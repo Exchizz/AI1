@@ -24,6 +24,7 @@ std::vector<Point> Tree::GenerateTree(Map &map){
 
   // NOTE recursively explore the map
   auto ManPositions = ExploreMap(root);
+
   return ManPositions;
 }
 
@@ -46,12 +47,23 @@ unsigned int Tree::_Nodes(Node * node){
 }
 
 Node * Tree::GenerateNode(Node * node, int action){
-
+std::cout << "action: " << action << std::endl;
     switch(action){
         case UP:
+        /*
             if (map.inMap(node->PosMan.Up()) &&  map.IsPosFree(node->PosMan.Up(), node->PosJew) ){
                 Node * Newnode = new Node(node->PosMan.Up(),node->PosJew); // Risk of memory leak - check smartpointer
                 return Newnode;
+            }
+            */
+            if (map.inMap(node->PosMan.Up()) && !map.IsPosWall( node->PosMan.Up())){
+              Node * Newnode = new Node(node->PosMan.Up(),node->PosJew); // Risk of memory leak - check smartpointer
+              if(map.TryToMove(node->PosMan.Up(), Newnode->PosJew, action)){
+                  return Newnode;
+              }
+
+              // If we don't use the node we just created, why save it then
+              return Newnode;
             }
         break;
 
@@ -64,13 +76,13 @@ Node * Tree::GenerateNode(Node * node, int action){
 
         case LEFT:
             if (map.inMap(node->PosMan.Left()) && !map.IsPosWall( node->PosMan.Left())){
-              //std::cout << "Before move: " << node->PosJew[0] << std::endl;
               Node * Newnode = new Node(node->PosMan.Left(),node->PosJew); // Risk of memory leak - check smartpointer
               if(map.TryToMove(node->PosMan.Left(), Newnode->PosJew, action)){
                   return Newnode;
               }
               // If we don't use the node we just created, why save it then
-              delete Newnode;
+              //delete Newnode;
+              return Newnode;
             }
         break;
 
@@ -89,7 +101,10 @@ Node * Tree::GenerateNode(Node * node, int action){
 }
 
 void Tree::Insert(Node * parent, int action){
+  std::cout << "not before" << std::endl;
+
   auto NewNode = GenerateNode(parent, action);
+
   // If node can't be created, don't insert one
   if(NewNode == nullptr)
     return;
@@ -142,9 +157,11 @@ void Tree::_ExploreMap(Node *node){
   for(auto &child : node->children){
       // NOTE Insert four nodes
       Insert(child, UP);
+
       Insert(child, DOWN);
       Insert(child, LEFT);
       Insert(child, RIGHT);
+
       _ExploreMap(child);
   }
 }

@@ -80,7 +80,7 @@ void Map::AllocateMemory(int rows, int cols){
 }
 
 bool Map::inMap(Point position){
-	if(position.x > cols -1 || position.y > rows -1){
+	if(position.x > cols -1 || position.y > rows -1 || position.y < 0 || position.x < 0){
 		std::cerr << "Out of range" << position << std::endl;
 		return false;
 	}
@@ -167,6 +167,17 @@ void MoveJew(std::vector<Point> &Jews, Point CurrentJewPos, Point NewJewPos, int
 bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 	if(IsPosJew(Jews, pos)){
 		switch(action){
+			case UP:
+				if(map[pos.x][pos.y-1] == '.'){
+					auto NewJewPos = Point(pos.x, pos.y-1);
+					auto CurrentJewPos = Point(pos.x, pos.y);
+					MoveJew(Jews, CurrentJewPos, NewJewPos, action);
+				} else {
+					return false;
+				}
+				return true;
+			break;
+
 			case LEFT:
 				if(map[pos.x -1][pos.y] == '.'){
 					auto NewJewPos = Point(pos.x - 1, pos.y);
