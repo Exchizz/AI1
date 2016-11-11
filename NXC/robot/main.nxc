@@ -1,0 +1,273 @@
+
+
+// Defines
+#define THRESHOLD 45 // light sensor threshold
+
+// Sensors
+int sensor_1; // Line follower
+int sensor_2; // Line follower
+int sensor_3; // Segment sensor
+
+// Variables
+char solution[500]; // declared solution array of max 500 elements
+char lastmove; // last move variable
+
+// Bools
+bool intersection_reached = false; // Bool for segment reached
+bool busy = false; // Bool for indicating whether a task is busy doing a move.
+bool line_follow = false; // Bool for checking line follow.
+bool reverse = false; // Bool for reverse movement
+
+
+//-----------------------------------------------------------------------------
+//------------------------------Line follower----------------------------------
+void follow_line(char last, char current, bool busy){
+
+  switch(current){
+
+    case "U":
+        if(last == "U"){
+          line_follow = true;
+          busy = true;
+          }
+        else
+          line_follow = false;
+      break;
+
+    case "D":
+        if(last == "D"){
+          line_follow = true;
+          busy = true;
+          }
+        else
+          line_follow = false;
+      break;
+
+    case "L":
+        if(last == "L"){
+          line_follow = true;
+          busy = true;
+          }
+        else
+          line_follow = false;
+      break;
+    case "R":
+        if(last == "R"){
+          line_follow = true;
+          busy = true;
+          }
+        else
+          line_follow = false;
+      break;
+
+    default:
+      break;
+  }
+
+	SetSensorLight(IN_1); // Line follower
+	SetSensorLight(IN_2); // Line follower
+	SetSensorLight(IN_3); // Segment sensor
+
+if(line_follow && busy == false){
+  	while(intersection_reached == false){
+
+  		  sensor_1 = Sensor(IN_1);
+  		  sensor_2 = Sensor(IN_2);
+
+  		  if(sensor_1 > THRESHOLD && sensor_2 > THRESHOLD){
+  			  OnFwdSync(OUT_AB, 90, 0);
+  		  }
+
+
+  		  if(sensor_1 > THRESHOLD){
+  			  OnFwd(OUT_A, 0);
+  			  OnFwd(OUT_B, 80);
+  		  }
+
+  		  if(sensor_2 > THRESHOLD){
+  			  OnFwd(OUT_B, 0);
+  			  OnFwd(OUT_A, 80);
+  		  }
+
+        // No active breaking, the bang-bang line follower stops when this sensor
+        // hits the intersection.
+  			if (sensor_3 > THRESHOLD){
+  				intersection_reached = true;
+  			}
+    }
+  busy = false;
+  }
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------turn--------------------------------------
+void turn(char last, char current, bool busy){
+
+
+// Pseudo code for switch statement for turning
+
+switch(last){
+
+  case "U":
+      if(current == "R"){
+        // turn right orientation wise
+        busy = true;
+      }
+      elseif(current == "L"){
+        // turn left orientation wise
+        busy = true;
+      }
+
+      break;
+
+  case "D":
+      if(current == "R"){
+        // turn left orientation wise
+        busy = true;
+      }
+      elseif(current == "L"){
+        // turn right orientation wise
+        busy = true;
+      }
+
+      break;
+
+  case "L":
+      if(current == "U"){
+        // turn left orientation wise
+        busy = true;
+      }
+      elseif(current == "D"){
+        // turn right orientation wise
+        busy = true;
+      }
+
+      break;
+
+  case "R":
+      if(current == "U"){
+        // turn right orientation wise
+        busy = true;
+      }
+      elseif(current == "D"){
+        //turn left orientation wise
+        busy = true;
+      }
+
+      break;
+
+  default:
+    break;
+}
+
+
+
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+//----------------------------------Reverse------------------------------------
+void reverse(char last, char current, bool busy){
+
+switch(last){
+
+  case "U":
+    if(current == "D"){
+      reverse = true;  // perform reverse movement
+      busy = true;
+    }
+    else
+      reverse = false;
+    break;
+
+  case "D":
+    if (current == "U"){
+      reverse = true;  // perform reverse movement
+      busy = true;
+    }
+    else
+      reverse = false;
+
+    break;
+
+  case "L":
+    if(current == "R"){
+      reverse = true;  // perform reverse movement
+      busy = true;
+    }
+    else
+      reverse = false;
+    break;
+
+  case "R":
+    if(current == "L"){
+      reverse = true;  // perform reverse movement
+      busy = true;
+    }
+    else
+      reverse = false;
+    break;
+
+  default:
+    break;
+}
+
+
+// Code for reverse movement....
+if(reverse && busy == false){
+
+
+}
+
+
+
+}
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+
+
+//-----------------------------------------------------------------------------
+//---------------------------------Main Task-----------------------------------
+//-----------------------------------------------------------------------------
+task main(){
+      rtn_code_1 = OpenFileRead("solution.txt", fsize, handle); // Loads the solution from the solver
+
+
+      //----------------File Open Check-----------------
+      if(rtn_code_1 != LDR_SUCCES){
+        TextOut(0, LCD_LINE1, "File Open Failed     ");
+        shutdown(SEC_8);
+        }
+
+      //-------Read from file into solution string-------
+      rtn_code_2 = Read(handle, solution);
+
+
+      //----------------File Read Check------------------
+      if(rtn_code_2 == LDR_SUCCES){
+
+
+        for(int i = 0; i =< fsize; i++){
+
+        follow_line(lastmove, solution[i], busy);
+        turn(lastmove ,solution[i], busy);
+        reverse(lastmove ,solution[i], busy);
+
+
+        lastmove = solution[i];
+
+        }
+      else{
+        TextOut(0, LCD_LINE1, "File Read Failed     ");
+        shutdown(SEC_8);
+      }
+      }
+}
