@@ -10,7 +10,7 @@ int sensor_3; // Segment sensor
 
 // Variables
 char solution[500]; // declared solution array of max 500 elements
-char lastmove; // last move variable
+char lastmove = default; // last move variable
 
 // Bools
 bool intersection_reached = false; // Bool for segment reached
@@ -22,6 +22,12 @@ bool reverse = false; // Bool for reverse movement
 //-----------------------------------------------------------------------------
 //------------------------------Line follower----------------------------------
 void follow_line(char last, char current, bool busy){
+
+// Default case, first element in solution array
+  if(last == default){
+  line_follow = true;
+  busy = true;
+  }
 
   switch(current){
 
@@ -117,7 +123,7 @@ switch(last){
         // turn right orientation wise
         busy = true;
       }
-      elseif(current == "L"){
+      else if(current == "L"){
         // turn left orientation wise
         busy = true;
       }
@@ -129,7 +135,7 @@ switch(last){
         // turn left orientation wise
         busy = true;
       }
-      elseif(current == "L"){
+      else if(current == "L"){
         // turn right orientation wise
         busy = true;
       }
@@ -141,7 +147,7 @@ switch(last){
         // turn left orientation wise
         busy = true;
       }
-      elseif(current == "D"){
+      else if(current == "D"){
         // turn right orientation wise
         busy = true;
       }
@@ -153,7 +159,7 @@ switch(last){
         // turn right orientation wise
         busy = true;
       }
-      elseif(current == "D"){
+      else if(current == "D"){
         //turn left orientation wise
         busy = true;
       }
@@ -224,6 +230,16 @@ switch(last){
 if(reverse && busy == false){
 
 
+  if(sensor_1 > THRESHOLD){
+    OnFwd(OUT_B, 0);
+    OnFwd(OUT_A, 60);
+  }
+
+  if(sensor_2 > THRESHOLD){
+    OnFwd(OUT_A, 0);
+    OnFwd(OUT_B, 60);
+  }
+
 }
 
 
@@ -232,7 +248,7 @@ if(reverse && busy == false){
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-
+// remember first case, when lastmove = null
 
 //-----------------------------------------------------------------------------
 //---------------------------------Main Task-----------------------------------
