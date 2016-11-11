@@ -24,6 +24,7 @@ public:
 	virtual ~DOTgraph();
 	void SaveGraph(std::string);
 	void addEdge(std::string, std::string);
+	std::vector<Node*>uniq_nodes;
 
 	std::string visualize(Node*);
 };

@@ -6,10 +6,7 @@
 #ifndef TREE_H
 #define TREE_H
 
-#define UP 1
-#define LEFT 2
-#define RIGHT 3
-#define DOWN 4
+
 
 class Tree {
 private:

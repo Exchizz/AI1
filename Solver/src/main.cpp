@@ -6,6 +6,9 @@ int main(){
 	Map map;
 	map.LoadMap("map.txt");
 	map.PrintMap();
+	//map.Clean("MJ");
+	//map.PrintMap();
+	//exit(1);
 
 	auto jewels = map.Find('J');
 
@@ -20,17 +23,6 @@ int main(){
 	// NOTE end test find
 	Tree tree;
 	auto ManPositions = tree.GenerateTree(map);
-	//std::cout << " Nodes in tree: " << tree.Nodes() << std::endl;
-	ManPositions = tree.points;
-
-	for(auto pos : ManPositions){
-		std::cout << pos << std::endl;
-		//tree.map.SetMan(pos);
-		//tree.map.PrintMap();
-	}
-	// Number of nodes in the tree
-	//std::cout << tree.Nodes() << std::endl;
-
 
 	DOTgraph graph;
 	graph.visualize(tree.root);
