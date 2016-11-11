@@ -166,16 +166,27 @@ void MoveJew(std::vector<Point> &Jews, Point CurrentJewPos, Point NewJewPos, int
 
 bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 	if(IsPosJew(Jews, pos)){
+		std::cout << "it's a jew" << pos << Jews[0] << std::endl;
 		switch(action){
 			case UP:
-				if(map[pos.x][pos.y-1] == '.'){
+				if(map[pos.x][pos.y-1] == '.' ){
 					auto NewJewPos = Point(pos.x, pos.y-1);
 					auto CurrentJewPos = Point(pos.x, pos.y);
 					MoveJew(Jews, CurrentJewPos, NewJewPos, action);
+					return true;
 				} else {
 					return false;
 				}
-				return true;
+			break;
+			case DOWN:
+				if(map[pos.x][pos.y+1] == '.'){
+					auto NewJewPos = Point(pos.x, pos.y+1);
+					auto CurrentJewPos = Point(pos.x, pos.y);
+					MoveJew(Jews, CurrentJewPos, NewJewPos, action);
+					return true;
+				} else {
+					return false;
+				}
 			break;
 
 			case LEFT:
@@ -187,6 +198,16 @@ bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 					return false;
 				}
 				return true;
+			break;
+			case RIGHT:
+				if(map[pos.x+1][pos.y] == '.' ){
+					auto NewJewPos = Point(pos.x+1, pos.y);
+					auto CurrentJewPos = Point(pos.x, pos.y);
+					MoveJew(Jews, CurrentJewPos, NewJewPos, action);
+					return true;
+				} else {
+					return false;
+				}
 			break;
 			default:
 				std::cout << "ERROR: Action not defined, TryToMove" << std::endl;

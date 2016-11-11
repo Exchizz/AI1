@@ -12,6 +12,7 @@ int main(){
 
 	auto jewels = map.Find('J');
 
+
 	// NOTE Test find
 	/*
 	for(auto j: jewels){

@@ -20,6 +20,7 @@ public:
   unsigned int _Nodes(Node*);
   Map map;
   Node * root;
+  std::vector<Point> PosGoals;
   std::vector<Point> points;
   int counter_debug = 0;
   void Insert(Node * child, int action);
