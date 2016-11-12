@@ -166,10 +166,9 @@ void MoveJew(std::vector<Point> &Jews, Point CurrentJewPos, Point NewJewPos, int
 
 bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 	if(IsPosJew(Jews, pos)){
-		std::cout << "it's a jew" << pos << Jews[0] << std::endl;
 		switch(action){
 			case UP:
-				if(map[pos.x][pos.y-1] == '.' ){
+				if(map[pos.x][pos.y-1] == '.' && !IsPosJew(Jews, Point(pos.x, pos.y-1))){
 					auto NewJewPos = Point(pos.x, pos.y-1);
 					auto CurrentJewPos = Point(pos.x, pos.y);
 					MoveJew(Jews, CurrentJewPos, NewJewPos, action);
@@ -179,7 +178,7 @@ bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 				}
 			break;
 			case DOWN:
-				if(map[pos.x][pos.y+1] == '.'){
+				if(map[pos.x][pos.y+1] == '.' && !IsPosJew(Jews, Point(pos.x, pos.y+11))){
 					auto NewJewPos = Point(pos.x, pos.y+1);
 					auto CurrentJewPos = Point(pos.x, pos.y);
 					MoveJew(Jews, CurrentJewPos, NewJewPos, action);
@@ -190,7 +189,8 @@ bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 			break;
 
 			case LEFT:
-				if(map[pos.x -1][pos.y] == '.'){
+				if(map[pos.x -1][pos.y] == '.'&& !IsPosJew(Jews, Point(pos.x-1, pos.y))){
+					std::cout << "isjew: " << IsPosJew(Jews, Point(pos.x-1, pos.y)) << std::endl;
 					auto NewJewPos = Point(pos.x - 1, pos.y);
 					auto CurrentJewPos = Point(pos.x, pos.y);
 					MoveJew(Jews, CurrentJewPos, NewJewPos, action);
@@ -200,7 +200,7 @@ bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 				return true;
 			break;
 			case RIGHT:
-				if(map[pos.x+1][pos.y] == '.' ){
+				if(map[pos.x+1][pos.y] == '.' && !IsPosJew(Jews, Point(pos.x+1, pos.y))){
 					auto NewJewPos = Point(pos.x+1, pos.y);
 					auto CurrentJewPos = Point(pos.x, pos.y);
 					MoveJew(Jews, CurrentJewPos, NewJewPos, action);
