@@ -51,6 +51,7 @@ void Map::LoadMap(std::string filename){
 	mapfile.get(c,4);
 	rows = ((int)c[1]-'0')*10 + (int)c[2]-'0' ;
 
+std::cout << "cols: " << cols << " rows: " << rows << std::endl;
 
 	mapfile.get(c,4);
 	cans = ((int)c[1]-'0')*10 + (int)c[2]-'0';
@@ -61,7 +62,6 @@ void Map::LoadMap(std::string filename){
 	mapfile.get(b);
 	// Read file to memory
 	for(int y = 0; y < rows; y++ ){
-		int newline = false;
 		for(int x = 0; x< cols; x++){
 			mapfile.get(b);
 			map[x][y] = b;
@@ -69,14 +69,16 @@ void Map::LoadMap(std::string filename){
 		mapfile.get(b);
 	}
 	mapfile.close();
+
 }
 
 void Map::AllocateMemory(int rows, int cols){
 	// Initialize map
-	map = new char*[cols ];
-	for(int i = 0; i < cols ; i++){
-		map[i] = new char[rows];
+	map = new char*[rows ];
+	for(int i = 0; i < rows ; i++){
+		map[i] = new char[cols];
 	}
+
 }
 
 bool Map::inMap(Point position){

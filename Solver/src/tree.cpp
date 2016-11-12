@@ -28,9 +28,11 @@ std::vector<Point> Tree::GenerateTree(Map &map){
   Insert(root, LEFT);
   Insert(root, RIGHT);
 
-  // NOTE recursively explore the map
-  auto ManPositions = ExploreMap(root);
+  // NOTE recursively explore the map Depth first method
+  //auto ManPositions = ExploreMap(root);
 
+  BredthFirst(root);
+  std::vector<Point> ManPositions;
   return ManPositions;
 }
 
@@ -167,12 +169,8 @@ std::vector<Point> Tree::ExploreMap(Node *node){
   return points;
 }
 
-void Tree::_ExploreMap(Node *node){
-  if(node->discovered){
-    return ;
-  }
 
-  node->discovered = true;
+bool Tree::IsGoal(Node * node){
   int finish = 0;
   for(auto goal: PosGoals){
     for(auto jew : node->PosJew){
@@ -182,13 +180,60 @@ void Tree::_ExploreMap(Node *node){
   std::cout << "finished: " << finish << std::endl;
   if(finish == PosGoals.size()){
     std::cout << "Found solution" << std::endl;
-    exit(0);
-    return;
+    return true;
   }
+  return false;
+}
+
+void Tree::BredthFirst(Node * root){
+  std::queue<Node*> OpenQueue;
+  std::queue<Node*> ClosedQueue;
+
+  OpenQueue.push(root);
+  while(!OpenQueue.empty()){
+    auto current = OpenQueue.front();
+    OpenQueue.pop();
+    ClosedQueue.push(current);
+    std::cout << "openqueuesize: " << ClosedQueue.size() << std::endl;
+    if(IsGoal(current)){
+      std::cout << "Reached goal" << std::endl;
+      return;
+      // BackTrack(curent)
+    }
+    Insert(current, UP);
+    Insert(current, DOWN);
+    Insert(current, LEFT);
+    Insert(current, RIGHT);
+    for(auto child: current->children){
+
+      if(child->discovered){
+        continue ;
+      }
+
+      child->discovered = true;
+
+      OpenQueue.push(child);
+    }
+  }
+
+  std::cout << "Reached bottom of while loop, no solution found" << std::endl;
+}
+
+
+
+void Tree::_ExploreMap(Node *node){
+  if(node->discovered){
+    return ;
+  }
+
+  node->discovered = true;
+
   if(counter_debug++ > 10000000)  {
       std::cout << FMAG("Too many recursive calls") << std::endl;
       return;
   }
+
+  IsGoal(node);
   for(auto &child : node->children){
       // NOTE Insert four nodes
       Insert(child, UP);
