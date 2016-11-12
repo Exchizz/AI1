@@ -1,7 +1,8 @@
 #include "tree.hpp"
 #include <iostream>
 #include <cassert>
-
+#include <stack>
+#include <algorithm>
 
 
 std::vector<Point> Tree::GenerateTree(Map &map){
@@ -177,7 +178,6 @@ bool Tree::IsGoal(Node * node){
       finish += (goal == jew);
     }
   }
-  std::cout << "finished: " << finish << std::endl;
   if(finish == PosGoals.size()){
     std::cout << "Found solution" << std::endl;
     return true;
@@ -190,13 +190,15 @@ void Tree::BredthFirst(Node * root){
   std::queue<Node*> ClosedQueue;
 
   OpenQueue.push(root);
+  root->discovered = true;
   while(!OpenQueue.empty()){
     auto current = OpenQueue.front();
     OpenQueue.pop();
     ClosedQueue.push(current);
-    std::cout << "openqueuesize: " << ClosedQueue.size() << std::endl;
     if(IsGoal(current)){
+      std::cout << "Closed queue size: " << ClosedQueue.size() << std::endl;
       std::cout << "Reached goal" << std::endl;
+      exit(0);
       return;
       // BackTrack(curent)
     }
@@ -204,15 +206,14 @@ void Tree::BredthFirst(Node * root){
     Insert(current, DOWN);
     Insert(current, LEFT);
     Insert(current, RIGHT);
-    for(auto child: current->children){
+    auto children = current->children;
+    //std::reverse(children.begin(),children.end());
+    for(auto &child: children){
+      if(!child->discovered){
+        child->discovered = true;
 
-      if(child->discovered){
-        continue ;
+        OpenQueue.push(child);
       }
-
-      child->discovered = true;
-
-      OpenQueue.push(child);
     }
   }
 
