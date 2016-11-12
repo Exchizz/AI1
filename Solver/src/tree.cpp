@@ -1,7 +1,8 @@
 #include "tree.hpp"
 #include <iostream>
 #include <cassert>
-
+#include <stack>
+#include <algorithm>
 
 
 std::vector<Point> Tree::GenerateTree(Map &map){
@@ -9,12 +10,18 @@ std::vector<Point> Tree::GenerateTree(Map &map){
   // NOTE find only returns one element since there is only one man in the map.
   Point PosMan = map.Find('M')[0];
   auto PosJew = map.Find('J');
+  PosGoals = map.Find('G');
+
+  for(auto elm: PosGoals){
+    std::cout << "Found goals: " << elm << std::endl;
+  }
+
   root = new Node(PosMan,PosJew);
   // Add root note to hashmap
   NodesInTree.emplace(*root,root);
 
   // Remove jew's and man from the map - we carry this information in each node anyways
-  map.Clean("MJ");
+  map.Clean("MJG");
 
   // NOTE Insert four nodes
   Insert(root, UP);
@@ -22,8 +29,11 @@ std::vector<Point> Tree::GenerateTree(Map &map){
   Insert(root, LEFT);
   Insert(root, RIGHT);
 
-  // NOTE recursively explore the map
-  auto ManPositions = ExploreMap(root);
+  // NOTE recursively explore the map Depth first method
+  //auto ManPositions = ExploreMap(root);
+
+  BredthFirst(root);
+  std::vector<Point> ManPositions;
   return ManPositions;
 }
 
@@ -34,7 +44,6 @@ unsigned int Tree::Nodes(){
 }
 
 unsigned int Tree::_Nodes(Node * node){
-      std::cout << "Node: " << node->PosMan  << std::endl;
       if(node->children.size() == 0){
         return 0;
       }
@@ -46,39 +55,70 @@ unsigned int Tree::_Nodes(Node * node){
 }
 
 Node * Tree::GenerateNode(Node * node, int action){
-
     switch(action){
         case UP:
-            if (map.inMap(node->PosMan.Up()) &&  map.IsPosFree(node->PosMan.Up(), node->PosJew) ){
-                Node * Newnode = new Node(node->PosMan.Up(),node->PosJew); // Risk of memory leak - check smartpointer
-                return Newnode;
+        {
+          if (map.inMap(node->PosMan.Up()) && !map.IsPosWall( node->PosMan.Up())){
+              Node * Newnode = new Node(node->PosMan.Up(),node->PosJew); // Risk of memory leak - check smartpointer
+              if(map.IsPosJew( node->PosJew,node->PosMan.Up())){
+                if(map.TryToMove(node->PosMan.Up(), Newnode->PosJew, action)){
+                  return Newnode;
+                } else {
+                  return nullptr;
+                }
+              }
+              return Newnode;
             }
+        }
         break;
 
         case DOWN:
-            if (map.inMap(node->PosMan.Down()) &&  map.IsPosFree(node->PosMan.Down(), node->PosJew)){
+        {
+          if (map.inMap(node->PosMan.Down()) && !map.IsPosWall( node->PosMan.Down())){
               Node * Newnode = new Node(node->PosMan.Down(),node->PosJew); // Risk of memory leak - check smartpointer
+              if(map.IsPosJew( node->PosJew,node->PosMan.Down())){
+                if(map.TryToMove(node->PosMan.Down(), Newnode->PosJew, action)){
+                  return Newnode;
+                } else {
+                  return nullptr;
+                }
+              }
               return Newnode;
             }
+        }
         break;
 
         case LEFT:
-            if (map.inMap(node->PosMan.Left()) && !map.IsPosWall( node->PosMan.Left())){
-              //std::cout << "Before move: " << node->PosJew[0] << std::endl;
+        {
+          if (map.inMap(node->PosMan.Left()) && !map.IsPosWall( node->PosMan.Left())){
               Node * Newnode = new Node(node->PosMan.Left(),node->PosJew); // Risk of memory leak - check smartpointer
-              if(map.TryToMove(node->PosMan.Left(), Newnode->PosJew, action)){
+              if(map.IsPosJew( node->PosJew,node->PosMan.Left())){
+                if(map.TryToMove(node->PosMan.Left(), Newnode->PosJew, action)){
                   return Newnode;
+                } else {
+                  return nullptr;
+                }
               }
-              // If we don't use the node we just created, why save it then
-              delete Newnode;
+              return Newnode;
             }
+        }
         break;
 
         case RIGHT:
-            if (map.inMap(node->PosMan.Right()) &&  map.IsPosFree(node->PosMan.Right(), node->PosJew)){
+        {
+          if (map.inMap(node->PosMan.Right()) && !map.IsPosWall( node->PosMan.Right())){
               Node * Newnode = new Node(node->PosMan.Right(),node->PosJew); // Risk of memory leak - check smartpointer
+              if(map.IsPosJew( node->PosJew,node->PosMan.Right())){
+                if(map.TryToMove(node->PosMan.Right(), Newnode->PosJew, action)){
+                  return Newnode;
+                } else {
+                  delete Newnode;
+                  return nullptr;
+                }
+              }
               return Newnode;
             }
+        }
         break;
 
         default:
@@ -90,6 +130,7 @@ Node * Tree::GenerateNode(Node * node, int action){
 
 void Tree::Insert(Node * parent, int action){
   auto NewNode = GenerateNode(parent, action);
+
   // If node can't be created, don't insert one
   if(NewNode == nullptr)
     return;
@@ -129,22 +170,78 @@ std::vector<Point> Tree::ExploreMap(Node *node){
   return points;
 }
 
+
+bool Tree::IsGoal(Node * node){
+  int finish = 0;
+  for(auto goal: PosGoals){
+    for(auto jew : node->PosJew){
+      finish += (goal == jew);
+    }
+  }
+  if(finish == PosGoals.size()){
+    std::cout << "Found solution" << std::endl;
+    return true;
+  }
+  return false;
+}
+
+void Tree::BredthFirst(Node * root){
+  std::queue<Node*> OpenQueue;
+  std::queue<Node*> ClosedQueue;
+
+  OpenQueue.push(root);
+  root->discovered = true;
+  while(!OpenQueue.empty()){
+    auto current = OpenQueue.front();
+    OpenQueue.pop();
+    ClosedQueue.push(current);
+    if(IsGoal(current)){
+      std::cout << "Closed queue size: " << ClosedQueue.size() << std::endl;
+      std::cout << "Reached goal" << std::endl;
+      exit(0);
+      return;
+      // BackTrack(curent)
+    }
+    Insert(current, UP);
+    Insert(current, DOWN);
+    Insert(current, LEFT);
+    Insert(current, RIGHT);
+    auto children = current->children;
+    //std::reverse(children.begin(),children.end());
+    for(auto &child: children){
+      if(!child->discovered){
+        child->discovered = true;
+
+        OpenQueue.push(child);
+      }
+    }
+  }
+
+  std::cout << "Reached bottom of while loop, no solution found" << std::endl;
+}
+
+
+
 void Tree::_ExploreMap(Node *node){
   if(node->discovered){
     return ;
   }
+
   node->discovered = true;
 
-  if(counter_debug++ > 100)  {
+  if(counter_debug++ > 10000000)  {
       std::cout << FMAG("Too many recursive calls") << std::endl;
       return;
   }
+
+  IsGoal(node);
   for(auto &child : node->children){
       // NOTE Insert four nodes
       Insert(child, UP);
       Insert(child, DOWN);
       Insert(child, LEFT);
       Insert(child, RIGHT);
+
       _ExploreMap(child);
   }
 }

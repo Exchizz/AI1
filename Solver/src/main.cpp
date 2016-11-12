@@ -12,6 +12,7 @@ int main(){
 
 	auto jewels = map.Find('J');
 
+
 	// NOTE Test find
 	/*
 	for(auto j: jewels){
@@ -23,7 +24,6 @@ int main(){
 	// NOTE end test find
 	Tree tree;
 	auto ManPositions = tree.GenerateTree(map);
-
 	DOTgraph graph;
 	graph.visualize(tree.root);
 	graph.SaveGraph("graph.dot");

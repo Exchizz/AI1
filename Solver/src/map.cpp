@@ -51,6 +51,7 @@ void Map::LoadMap(std::string filename){
 	mapfile.get(c,4);
 	rows = ((int)c[1]-'0')*10 + (int)c[2]-'0' ;
 
+std::cout << "cols: " << cols << " rows: " << rows << std::endl;
 
 	mapfile.get(c,4);
 	cans = ((int)c[1]-'0')*10 + (int)c[2]-'0';
@@ -61,7 +62,6 @@ void Map::LoadMap(std::string filename){
 	mapfile.get(b);
 	// Read file to memory
 	for(int y = 0; y < rows; y++ ){
-		int newline = false;
 		for(int x = 0; x< cols; x++){
 			mapfile.get(b);
 			map[x][y] = b;
@@ -69,18 +69,20 @@ void Map::LoadMap(std::string filename){
 		mapfile.get(b);
 	}
 	mapfile.close();
+
 }
 
 void Map::AllocateMemory(int rows, int cols){
 	// Initialize map
-	map = new char*[cols ];
-	for(int i = 0; i < cols ; i++){
-		map[i] = new char[rows];
+	map = new char*[rows ];
+	for(int i = 0; i < rows ; i++){
+		map[i] = new char[cols];
 	}
+
 }
 
 bool Map::inMap(Point position){
-	if(position.x > cols -1 || position.y > rows -1){
+	if(position.x > cols -1 || position.y > rows -1 || position.y < 0 || position.x < 0){
 		std::cerr << "Out of range" << position << std::endl;
 		return false;
 	}
@@ -167,8 +169,29 @@ void MoveJew(std::vector<Point> &Jews, Point CurrentJewPos, Point NewJewPos, int
 bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 	if(IsPosJew(Jews, pos)){
 		switch(action){
+			case UP:
+				if(map[pos.x][pos.y-1] == '.' && !IsPosJew(Jews, Point(pos.x, pos.y-1))){
+					auto NewJewPos = Point(pos.x, pos.y-1);
+					auto CurrentJewPos = Point(pos.x, pos.y);
+					MoveJew(Jews, CurrentJewPos, NewJewPos, action);
+					return true;
+				} else {
+					return false;
+				}
+			break;
+			case DOWN:
+				if(map[pos.x][pos.y+1] == '.' && !IsPosJew(Jews, Point(pos.x, pos.y+1))){
+					auto NewJewPos = Point(pos.x, pos.y+1);
+					auto CurrentJewPos = Point(pos.x, pos.y);
+					MoveJew(Jews, CurrentJewPos, NewJewPos, action);
+					return true;
+				} else {
+					return false;
+				}
+			break;
+
 			case LEFT:
-				if(map[pos.x -1][pos.y] == '.'){
+				if(map[pos.x -1][pos.y] == '.'&& !IsPosJew(Jews, Point(pos.x-1, pos.y))){
 					auto NewJewPos = Point(pos.x - 1, pos.y);
 					auto CurrentJewPos = Point(pos.x, pos.y);
 					MoveJew(Jews, CurrentJewPos, NewJewPos, action);
@@ -176,6 +199,16 @@ bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 					return false;
 				}
 				return true;
+			break;
+			case RIGHT:
+				if(map[pos.x+1][pos.y] == '.' && !IsPosJew(Jews, Point(pos.x+1, pos.y))){
+					auto NewJewPos = Point(pos.x+1, pos.y);
+					auto CurrentJewPos = Point(pos.x, pos.y);
+					MoveJew(Jews, CurrentJewPos, NewJewPos, action);
+					return true;
+				} else {
+					return false;
+				}
 			break;
 			default:
 				std::cout << "ERROR: Action not defined, TryToMove" << std::endl;
