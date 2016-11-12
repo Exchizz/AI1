@@ -178,7 +178,7 @@ bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 				}
 			break;
 			case DOWN:
-				if(map[pos.x][pos.y+1] == '.' && !IsPosJew(Jews, Point(pos.x, pos.y+11))){
+				if(map[pos.x][pos.y+1] == '.' && !IsPosJew(Jews, Point(pos.x, pos.y+1))){
 					auto NewJewPos = Point(pos.x, pos.y+1);
 					auto CurrentJewPos = Point(pos.x, pos.y);
 					MoveJew(Jews, CurrentJewPos, NewJewPos, action);
