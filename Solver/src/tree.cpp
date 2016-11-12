@@ -20,7 +20,7 @@ std::vector<Point> Tree::GenerateTree(Map &map){
   NodesInTree.emplace(*root,root);
 
   // Remove jew's and man from the map - we carry this information in each node anyways
-  map.Clean("MJ");
+  map.Clean("MJG");
 
   // NOTE Insert four nodes
   Insert(root, UP);
@@ -91,7 +91,6 @@ Node * Tree::GenerateNode(Node * node, int action){
               Node * Newnode = new Node(node->PosMan.Left(),node->PosJew); // Risk of memory leak - check smartpointer
               if(map.IsPosJew( node->PosJew,node->PosMan.Left())){
                 if(map.TryToMove(node->PosMan.Left(), Newnode->PosJew, action)){
-                  std::cout << "moving: "<< node->PosMan << std::endl;
                   return Newnode;
                 } else {
                   return nullptr;
@@ -173,25 +172,19 @@ void Tree::_ExploreMap(Node *node){
     return ;
   }
 
-  if(counter_debug++ >= 10){
-    return;
-  }
-
   node->discovered = true;
-  bool finish = true;
+  int finish = 0;
   for(auto goal: PosGoals){
     for(auto jew : node->PosJew){
-      std::cout << "tjek: " << (goal == jew) << goal << jew << std::endl;
-      finish = finish && (goal == jew);
+      finish += (goal == jew);
     }
   }
-
-  if(finish){
-    std::cout << "Found solution !!"  << std::endl;
+  std::cout << "finished: " << finish << std::endl;
+  if(finish == PosGoals.size()){
+    std::cout << "Found solution" << std::endl;
+    exit(0);
     return;
   }
-
-
   if(counter_debug++ > 10000000)  {
       std::cout << FMAG("Too many recursive calls") << std::endl;
       return;
