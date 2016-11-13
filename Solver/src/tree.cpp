@@ -5,6 +5,9 @@
 #include <algorithm>
 
 
+
+
+
 std::vector<Point> Tree::GenerateTree(Map &map){
   this->map = map;
   // NOTE find only returns one element since there is only one man in the map.
@@ -16,9 +19,12 @@ std::vector<Point> Tree::GenerateTree(Map &map){
     std::cout << "Found goals: " << elm << std::endl;
   }
 
+  map.FindDeadLocks(PosGoals);
+  //exit(0);
+
   root = new Node(PosMan,PosJew);
   // Add root note to hashmap
-  NodesInTree.emplace(*root,root);
+  NodesInTree.emplace(hash(root),root);
 
   // Remove jew's and man from the map - we carry this information in each node anyways
   map.Clean("MJG");
@@ -58,7 +64,7 @@ Node * Tree::GenerateNode(Node * node, int action){
     switch(action){
         case UP:
         {
-          if (map.inMap(node->PosMan.Up()) && !map.IsPosWall( node->PosMan.Up())){
+            if (map.inMap(node->PosMan.Up()) && !map.IsPosWall( node->PosMan.Up())){
               Node * Newnode = new Node(node->PosMan.Up(),node->PosJew); // Risk of memory leak - check smartpointer
               if(map.IsPosJew( node->PosJew,node->PosMan.Up())){
                 if(map.TryToMove(node->PosMan.Up(), Newnode->PosJew, action)){
@@ -75,6 +81,7 @@ Node * Tree::GenerateNode(Node * node, int action){
         case DOWN:
         {
           if (map.inMap(node->PosMan.Down()) && !map.IsPosWall( node->PosMan.Down())){
+
               Node * Newnode = new Node(node->PosMan.Down(),node->PosJew); // Risk of memory leak - check smartpointer
               if(map.IsPosJew( node->PosJew,node->PosMan.Down())){
                 if(map.TryToMove(node->PosMan.Down(), Newnode->PosJew, action)){
@@ -91,6 +98,7 @@ Node * Tree::GenerateNode(Node * node, int action){
         case LEFT:
         {
           if (map.inMap(node->PosMan.Left()) && !map.IsPosWall( node->PosMan.Left())){
+
               Node * Newnode = new Node(node->PosMan.Left(),node->PosJew); // Risk of memory leak - check smartpointer
               if(map.IsPosJew( node->PosJew,node->PosMan.Left())){
                 if(map.TryToMove(node->PosMan.Left(), Newnode->PosJew, action)){
@@ -107,6 +115,7 @@ Node * Tree::GenerateNode(Node * node, int action){
         case RIGHT:
         {
           if (map.inMap(node->PosMan.Right()) && !map.IsPosWall( node->PosMan.Right())){
+
               Node * Newnode = new Node(node->PosMan.Right(),node->PosJew); // Risk of memory leak - check smartpointer
               if(map.IsPosJew( node->PosJew,node->PosMan.Right())){
                 if(map.TryToMove(node->PosMan.Right(), Newnode->PosJew, action)){
@@ -134,8 +143,8 @@ void Tree::Insert(Node * parent, int action){
   // If node can't be created, don't insert one
   if(NewNode == nullptr)
     return;
-
-  auto retpair = NodesInTree.emplace(*NewNode,NewNode); // returns 1 if new node inserted, else 0
+  auto retpair = NodesInTree.emplace( hash(NewNode), NewNode);
+  //auto retpair = NodesInTree.emplace(*NewNode,NewNode); // returns 1 if new node inserted, else 0
     /*
       if = iterrator to element
         element:
@@ -152,10 +161,10 @@ void Tree::Insert(Node * parent, int action){
 
     int tjek = 0;
     for(auto elm: parent->children ){
-    if(*elm == *NewNode){
-          tjek = 1;
-          return;
-      }
+      if(*elm == *NewNode){
+            tjek = 1;
+            return;
+        }
     }
 
     assert(tjek <= 1);

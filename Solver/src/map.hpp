@@ -5,6 +5,10 @@
 #include <vector>
 #include "point.hpp"
 #include "colors.hpp"
+#include <unordered_map>
+#include <sstream>
+
+
 
 #define UP 1
 #define LEFT 2
@@ -27,6 +31,8 @@ class Map {
                 std::vector<Point> Find(char);
                 char operator[](Point);
                 void SetMan(Point PosMan);
+                std::unordered_map<std::string, int> deadlocks;
+
                 Map* Clone();
                 void AllocateMemory(int,int);
                 Map& operator=(Map& other){
@@ -41,6 +47,15 @@ class Map {
                 bool IsPosJew(std::vector<Point> & Jews, Point pos);
                 bool IsPosWall(Point pos);
                 bool IsPosFree(Point pos, std::vector<Point> &Jews);
+                bool MoveJew(std::vector<Point> &Jews, Point CurrentJewPos, Point NewJewPos, int action);
+                int  FindDeadLocks(std::vector<Point> goals);
+
+                std::string hashPos(Point pos){
+                  std::stringstream xy;
+                  xy << pos.x << pos.y;
+                  return xy.str();
+                }
+
 };
 
 #endif

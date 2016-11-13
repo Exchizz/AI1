@@ -3,6 +3,7 @@
 Node::Node(Point PosMan, std::vector<Point> &PosJew){
   this->PosMan = PosMan;
   this->PosJew = PosJew;
+  //children.reserve(8); // slows down
 }
 [[deprecated]]
 void Node::Insert(Map & map,Point PosMan, std::vector<Point> &PosJew){

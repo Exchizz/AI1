@@ -3,7 +3,7 @@
 #include "colors.hpp"
 #include <unordered_map>
 #include <queue>
-
+#include <sstream>
 #ifndef TREE_H
 #define TREE_H
 
@@ -29,6 +29,28 @@ public:
   void Insert(Node * child, int action);
   Node * GenerateNode(Node * child, int action);
 
-  std::unordered_map<Node, Node*> NodesInTree;
+  std::unordered_map<std::string, Node*> NodesInTree;
+
+  Tree(){
+    NodesInTree.reserve(1000000);
+  }
+
+  std::string hash(Node * node){
+    /*
+    std::string xy = std::to_string(node->PosMan.x) + std::to_string(node->PosMan.y);
+
+    for(auto elm: node->PosJew){
+      xy+= std::to_string(elm.x) + std::to_string(elm.y);
+    }
+    */
+
+    std::stringstream xy;
+    xy << node->PosMan.x << node->PosMan.y;
+    for(auto elm: node->PosJew){
+      xy <<  elm.x << elm.y;
+    }
+
+    return xy.str();
+  }
 };
 #endif

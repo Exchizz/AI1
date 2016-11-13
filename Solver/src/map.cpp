@@ -13,6 +13,35 @@ void Map::Clean(std::string ToRemove){
 	}
 }
 
+
+int Map::FindDeadLocks(std::vector<Point> goals){
+	std::vector<Point> deadlocks;
+	for(int x = 1; x < cols-1; x++){
+		for(int y = 1; y < rows-1; y++){
+			// if the position is a wall, we can't put a jew here anyway..
+			if(map[x][y] == 'X' or map[x][y] == 'G') continue;
+			// Up left
+			if(map[x][y-1] == 'X' and map[x-1][y] == 'X'){
+				deadlocks.push_back( Point(x, y) );
+			}
+			// Up right
+			if(map[x][y-1] == 'X' and map[x+1][y] == 'X'){
+				deadlocks.push_back( Point(x, y) );
+			}
+			// Down right
+			if(map[x][y+1] == 'X' and map[x+1][y] == 'X'){
+				deadlocks.push_back( Point(x, y) );
+			}
+			// Down left
+			if(map[x][y+1] == 'X' and map[x-1][y] == 'X'){
+				deadlocks.push_back( Point(x, y) );
+			}
+		}
+	}
+	std::cout << "deadlocks: " << deadlocks.size() << std::endl;
+return 0;
+}
+
 std::vector<Point> Map::Find(char needle){
 	std::vector<Point> results;
 	for (int x = 0; x < cols; x++){
@@ -51,7 +80,7 @@ void Map::LoadMap(std::string filename){
 	mapfile.get(c,4);
 	rows = ((int)c[1]-'0')*10 + (int)c[2]-'0' ;
 
-std::cout << "cols: " << cols << " rows: " << rows << std::endl;
+	std::cout << "cols: " << cols << " rows: " << rows << std::endl;
 
 	mapfile.get(c,4);
 	cans = ((int)c[1]-'0')*10 + (int)c[2]-'0';
@@ -89,7 +118,6 @@ bool Map::inMap(Point position){
 
 	return true;
 }
-
 
 void Map::PrintMap(){
 	std::cout << "   ";
@@ -158,12 +186,19 @@ bool Map::IsPosFree(Point pos, std::vector<Point> &Jews){
 }
 
 
-void MoveJew(std::vector<Point> &Jews, Point CurrentJewPos, Point NewJewPos, int action){
+bool Map::MoveJew(std::vector<Point> &Jews, Point CurrentJewPos, Point NewJewPos, int action){
+	auto search = deadlocks.find(hashPos(NewJewPos));
+	if(search != deadlocks.end()) {
+			std::cout << "Found " << search->first << " " << search->second << '\n';
+			return false;
+	}
+
 	for(auto & jew: Jews){
 		if(jew == CurrentJewPos){
 				jew = NewJewPos;
 		}
 	}
+	return true;
 }
 
 bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
@@ -173,8 +208,7 @@ bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 				if(map[pos.x][pos.y-1] == '.' && !IsPosJew(Jews, Point(pos.x, pos.y-1))){
 					auto NewJewPos = Point(pos.x, pos.y-1);
 					auto CurrentJewPos = Point(pos.x, pos.y);
-					MoveJew(Jews, CurrentJewPos, NewJewPos, action);
-					return true;
+					return MoveJew(Jews, CurrentJewPos, NewJewPos, action);
 				} else {
 					return false;
 				}
@@ -183,8 +217,7 @@ bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 				if(map[pos.x][pos.y+1] == '.' && !IsPosJew(Jews, Point(pos.x, pos.y+1))){
 					auto NewJewPos = Point(pos.x, pos.y+1);
 					auto CurrentJewPos = Point(pos.x, pos.y);
-					MoveJew(Jews, CurrentJewPos, NewJewPos, action);
-					return true;
+					return MoveJew(Jews, CurrentJewPos, NewJewPos, action);
 				} else {
 					return false;
 				}
@@ -194,7 +227,7 @@ bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 				if(map[pos.x -1][pos.y] == '.'&& !IsPosJew(Jews, Point(pos.x-1, pos.y))){
 					auto NewJewPos = Point(pos.x - 1, pos.y);
 					auto CurrentJewPos = Point(pos.x, pos.y);
-					MoveJew(Jews, CurrentJewPos, NewJewPos, action);
+					return MoveJew(Jews, CurrentJewPos, NewJewPos, action);
 				} else {
 					return false;
 				}
@@ -204,8 +237,7 @@ bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 				if(map[pos.x+1][pos.y] == '.' && !IsPosJew(Jews, Point(pos.x+1, pos.y))){
 					auto NewJewPos = Point(pos.x+1, pos.y);
 					auto CurrentJewPos = Point(pos.x, pos.y);
-					MoveJew(Jews, CurrentJewPos, NewJewPos, action);
-					return true;
+					return MoveJew(Jews, CurrentJewPos, NewJewPos, action);
 				} else {
 					return false;
 				}
