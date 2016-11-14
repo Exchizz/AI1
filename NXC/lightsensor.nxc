@@ -4,6 +4,7 @@ int data;
 
 SetSensorLight(IN_1);
 SetSensorLight(IN_2);
+SetSensorLight(IN_3);
 
 while(true){
   data = Sensor(IN_1);
@@ -17,6 +18,12 @@ while(true){
   iStr = NumToStr(data);
   out = StrCat("Sensor 2: ",iStr);
   TextOut(10, LCD_LINE2, out);
+
+  data = Sensor(IN_3);
+
+  iStr = NumToStr(data);
+  out = StrCat("Sensor 3: ",iStr);
+  TextOut(10, LCD_LINE3, out);
 
 
   }
