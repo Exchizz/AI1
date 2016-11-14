@@ -19,6 +19,9 @@ char current;
 int len;
 
 
+string test;
+
+
 // Bools
 bool intersection_reached = false; // Bool for segment reached
 bool busy = false; // Bool for indicating whether a task is busy doing a move.
@@ -84,7 +87,7 @@ sub follow_line(char lastmove, char current, bool busy){
 
 
 if(line_follow && busy == false){
-  busy = true;
+
 
   	while(intersection_reached == false){
 
@@ -95,6 +98,8 @@ if(line_follow && busy == false){
       sensor_1 = Sensor(IN_1);
       sensor_2 = Sensor(IN_2);
       sensor_3 = Sensor(IN_3);
+
+      busy = true;
 
         if (sensor_3 < THRESHOLD2){
           intersection_reached = true;
@@ -133,15 +138,7 @@ if(line_follow && busy == false){
 //-----------------------------------turn--------------------------------------
 sub turn(char lastmove, char current, bool busy){
 
-
-// Pseudo code for switch statement for turning
-//SetSensorLight(IN_1); // Line follower
-//SetSensorLight(IN_2); // Line follower
-//SetSensorLight(IN_3); // Segment sensor
-
-
   switch(lastmove){
-
     case 'U':
         if(current == 'R'){
           // turn right orientation wise
@@ -157,7 +154,6 @@ sub turn(char lastmove, char current, bool busy){
         }
 
         break;
-
     case 'D':
         if(current == 'R'){
           // turn left orientation wise
@@ -171,9 +167,7 @@ sub turn(char lastmove, char current, bool busy){
           turn_left = false;
           turn_right = false;
         }
-
         break;
-
     case 'L':
         if(current == 'U'){
           // turn left orientation wise
@@ -211,8 +205,10 @@ sub turn(char lastmove, char current, bool busy){
   }
 
   if((turn_left || turn_right) && busy == false){
-    busy = true;
+
     while(!turn_complete) {
+
+      busy = true;
 
       SetSensorLight(IN_1); // Line follower
       SetSensorLight(IN_2); // Line follower
@@ -234,22 +230,45 @@ sub turn(char lastmove, char current, bool busy){
       else if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1) {
         OnFwdSync(OUT_AB, 0, 0);
 
-        if (turn_right) {
-          // Initial Guess of 90 degrees turn
-          RotateMotorEx(OUT_AB, 25, 180, 100, true, true);
+            if (turn_right) {
+              //TextOut(0,LCD_LINE1, "turn right");
+              //Wait(1000);
+              // Initial Guess of 90 degrees turn
+              RotateMotorEx(OUT_AB, 25, 140, 100, true, true);
+            }
 
-          turn_complete = true;
-        }
+            else if (turn_left) {
+              //TextOut(0,LCD_LINE2, "turn left");
+              //Wait(1000);
+              // Initial Guess of 90 degrees turn
+              RotateMotorEx(OUT_AB, 25, 140, -100, true, true);
+            }
+            // Line follow to next segment
+            if (sensor_3 < THRESHOLD2){
+              turn_complete = true;
+              Wait(150);
+              OnFwdSync(OUT_AB, 0, 0);
+            }
 
-        else if (turn_left) {
-          // Initial Guess of 90 degrees turn
-          RotateMotorEx(OUT_AB, 25, 180, 100, true, true);
+      		  else if(sensor_1 > THRESHOLD1 && sensor_2 > THRESHOLD1){
+      			  OnFwdSync(OUT_AB, 50, 0);
+      		  }
 
-          turn_complete = true;
-        }
+            else if(sensor_1 > THRESHOLD1){
+              OnFwd(OUT_A, 0);
+              OnFwd(OUT_B, 35);
+            }
+
+            else if(sensor_2 > THRESHOLD1){
+            	OnFwd(OUT_B, 0);
+            	OnFwd(OUT_A, 35);
+            }
       }
     }
     busy = false;
+    turn_left = false;
+    turn_right = false;
+    turn_complete = false;
   }
 }
 
@@ -259,84 +278,32 @@ sub turn(char lastmove, char current, bool busy){
 
 //-----------------------------------------------------------------------------
 //----------------------------------Reverse------------------------------------
-//void reverse(char last, char current, bool busy){
+//sub reverse(char last, char current, bool busy){
 
-//switch(last){
-
-//  case "U":
-//    if(current == "D"){
-//      reverse = true;  // perform reverse movement
-//      busy = true;
-//    }
-//    else
-//      reverse = false;
-//    break;
-
-//  case "D":
-//    if (current == "U"){
-//      reverse = true;  // perform reverse movement
-//      busy = true;
-//    }
-//    else
-//      reverse = false;
-
-//    break;
-
-//  case "L":
-//    if(current == "R"){
-//      reverse = true;  // perform reverse movement
-//      busy = true;
-//    }
-//    else
-//      reverse = false;
-//    break;
-
-//  case "R":
-//    if(current == "L"){
-//      reverse = true;  // perform reverse movement
-//      busy = true;
-//    }
-//    else
-//      reverse = false;
-//    break;
-
-//  default:
-//    break;
-//}
-
-
-// Code for reverse movement....
-//if(reverse && busy == false){
-
-
-//  if(sensor_1 > THRESHOLD){
-//    OnFwd(OUT_B, 0);
-//    OnFwd(OUT_A, 60);
-//  }
-
-//  if(sensor_2 > THRESHOLD){
-//    OnFwd(OUT_A, 0);
-//    OnFwd(OUT_B, 60);
-//  }
-
-//}
-
-
-
-//}
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-// remember first case, when lastmove = null
 
 //-----------------------------------------------------------------------------
 //---------------------------------Main Task-----------------------------------
 //-----------------------------------------------------------------------------
 task main(){
 
-     plan="DD";
-     lastmove = 'D';
-     len =  ArrayLen(plan);
+     plan = "URUR";
+     lastmove = 'P';
+
+     if(StrIndex(plan,0) == 'U')
+      lastmove = 'U';
+     else if(StrIndex(plan,0) == 'D')
+      lastmove = 'D';
+     else if(StrIndex(plan,0) == 'R')
+      lastmove = 'R';
+     else if(StrIndex(plan,0) == 'L')
+      lastmove = 'L';
+
+    //string test = " ";
+
+    len =  ArrayLen(plan);
 
         for (int i=0; i < len; i++)
         {
@@ -345,6 +312,12 @@ task main(){
           turn(lastmove, plan[i], busy);
 
         //reverse(lastmove ,solution[i], busy);
+
+        //test[0] = StrIndex(plan,i);
+        //if (StrIndex(plan,0) == 'U')
+        // TextOut(0,LCD_LINE3,"test");
+        //Wait(1000);
+
           lastmove = plan[i];
 
         }
