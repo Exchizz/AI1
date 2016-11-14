@@ -207,6 +207,7 @@ sub turn(char lastmove, char current, bool busy){
   if((turn_left || turn_right) && busy == false){
 
     while(!turn_complete) {
+
       busy = true;
 
       SetSensorLight(IN_1); // Line follower
@@ -230,15 +231,15 @@ sub turn(char lastmove, char current, bool busy){
         OnFwdSync(OUT_AB, 0, 0);
 
             if (turn_right) {
-              TextOut(0,LCD_LINE1, "turn right");
-              Wait(1000);
+              //TextOut(0,LCD_LINE1, "turn right");
+              //Wait(1000);
               // Initial Guess of 90 degrees turn
               RotateMotorEx(OUT_AB, 25, 140, 100, true, true);
             }
 
             else if (turn_left) {
-              TextOut(0,LCD_LINE2, "turn left");
-              Wait(1000);
+              //TextOut(0,LCD_LINE2, "turn left");
+              //Wait(1000);
               // Initial Guess of 90 degrees turn
               RotateMotorEx(OUT_AB, 25, 140, -100, true, true);
             }
@@ -267,6 +268,7 @@ sub turn(char lastmove, char current, bool busy){
     busy = false;
     turn_left = false;
     turn_right = false;
+    turn_complete = false;
   }
 }
 
