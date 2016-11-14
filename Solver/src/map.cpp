@@ -15,30 +15,96 @@ void Map::Clean(std::string ToRemove){
 
 
 int Map::FindDeadLocks(std::vector<Point> goals){
-	std::vector<Point> deadlocks;
+	std::vector<std::pair<Point, int>> deadlocks_list;
 	for(int x = 1; x < cols-1; x++){
 		for(int y = 1; y < rows-1; y++){
 			// if the position is a wall, we can't put a jew here anyway..
 			if(map[x][y] == 'X' or map[x][y] == 'G') continue;
 			// Up left
 			if(map[x][y-1] == 'X' and map[x-1][y] == 'X'){
-				deadlocks.push_back( Point(x, y) );
+				deadlocks_list.push_back( std::make_pair(Point(x,y),0) );
 			}
 			// Up right
 			if(map[x][y-1] == 'X' and map[x+1][y] == 'X'){
-				deadlocks.push_back( Point(x, y) );
+				deadlocks_list.push_back( std::make_pair(Point(x,y),0) );
 			}
 			// Down right
 			if(map[x][y+1] == 'X' and map[x+1][y] == 'X'){
-				deadlocks.push_back( Point(x, y) );
+				deadlocks_list.push_back( std::make_pair(Point(x,y),0) );
 			}
 			// Down left
 			if(map[x][y+1] == 'X' and map[x-1][y] == 'X'){
-				deadlocks.push_back( Point(x, y) );
+				deadlocks_list.push_back( std::make_pair(Point(x,y),0) );
 			}
 		}
 	}
-	std::cout << "deadlocks: " << deadlocks.size() << std::endl;
+
+	for(auto &deadlock1 : deadlocks_list){
+		for(auto &deadlock2 : deadlocks_list){
+			if (deadlock1 == deadlock2) {
+				//std::cout << "skipping, same deadlock found" << std::endl;
+				continue;
+			}
+
+			// check for horizontal lines
+			if(deadlock1.first.y == deadlock2.first.y && !deadlock1.second && !deadlock2.second){
+				deadlock1.second = 1;
+				deadlock2.second = 1;
+				bool valid_deadlock = true;
+				for(int x = std::min(deadlock1.first.x, deadlock2.first.x); x <= std::max(deadlock1.first.x, deadlock2.first.x); x++){
+					if( map[x][deadlock1.first.y] == 'G' or map[x][deadlock1.first.y] == 'M' ){
+						valid_deadlock = false;
+					}
+					valid_deadlock = valid_deadlock && (map[x][deadlock1.first.y-1] == 'X' or map[x][deadlock1.first.y+1] == 'X');
+				}
+
+				if(valid_deadlock){
+					for(int x = std::min(deadlock1.first.x, deadlock2.first.x); x <= std::max(deadlock1.first.x, deadlock2.first.x); x++){
+							std::cout << "deadlock position: " << "x: " << x << " y: " << deadlock2.first.y << std::endl;
+							deadlocks.insert({ hashPos(Point(x, deadlock1.first.y)),1});
+					}
+				}
+			}
+		}
+	}
+	// Reset "visisted" variables on each deadlock.
+	for(auto &deadlock1 : deadlocks_list)
+		deadlock1.second = 0;
+	for(auto &deadlock2 : deadlocks_list)
+		deadlock2.second = 0;
+
+
+
+  std::cout << "deadlocks vertical" << std::endl;
+	for(auto &deadlock1 : deadlocks_list){
+		for(auto &deadlock2 : deadlocks_list){
+
+				if (deadlock1 == deadlock2) {
+				//std::cout << "skipping, same deadlock found" << std::endl;
+					continue;
+				}
+				// check for vertical lines
+				if(deadlock1.first.x == deadlock2.first.x && !deadlock1.second && !deadlock2.second){
+					deadlock1.second = 1;
+					deadlock2.second = 1;
+					bool valid_deadlock = true;
+					for(int y = std::min(deadlock1.first.y, deadlock2.first.y); y <= std::max(deadlock1.first.y, deadlock2.first.y); y++){
+						if( map[deadlock1.first.x][y] == 'G' or map[deadlock1.first.x][y] == 'M' ){
+							valid_deadlock = false;
+						}
+						valid_deadlock = valid_deadlock && (map[deadlock1.first.x-1][y] == 'X' or map[deadlock1.first.x +1 ][y] == 'X');
+					}
+
+					if(valid_deadlock){
+						for(int y = std::min(deadlock1.first.y, deadlock2.first.y); y <= std::max(deadlock1.first.y, deadlock2.first.y); y++){
+								std::cout << "deadlock position: " << "x: " << deadlock1.first.x << " y: " << y << std::endl;
+								deadlocks.insert({ hashPos(Point(deadlock1.first.x, y)),1});
+						}
+					}
+				}
+			}
+		}
+		std::cout << "deadlocks: " << deadlocks.size() << std::endl;
 return 0;
 }
 
@@ -187,18 +253,11 @@ bool Map::IsPosFree(Point pos, std::vector<Point> &Jews){
 
 
 bool Map::MoveJew(std::vector<Point> &Jews, Point CurrentJewPos, Point NewJewPos, int action){
-	if(NewJewPos.x == 1 or NewJewPos.y == rows-2 or NewJewPos.x == cols-2 or (NewJewPos.x < 5 and NewJewPos.y == 1)){
-		//std::cout << "Hit deadlock in wall" << std::endl;
-		return false;
-	}
-
 
 	auto search = deadlocks.find(hashPos(NewJewPos));
 	if(search != deadlocks.end()) {
-			std::cout << "Found " << search->first << " " << search->second << '\n';
 			return false;
 	}
-
 	for(auto & jew: Jews){
 		if(jew == CurrentJewPos){
 				jew = NewJewPos;

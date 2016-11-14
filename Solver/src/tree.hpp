@@ -32,17 +32,10 @@ public:
   std::unordered_map<std::string, Node*> NodesInTree;
 
   Tree(){
-    NodesInTree.reserve(1000000);
+    NodesInTree.reserve(32000000);
   }
 
   std::string hash(Node * node){
-    /*
-    std::string xy = std::to_string(node->PosMan.x) + std::to_string(node->PosMan.y);
-
-    for(auto elm: node->PosJew){
-      xy+= std::to_string(elm.x) + std::to_string(elm.y);
-    }
-    */
 
     std::stringstream xy;
     xy << node->PosMan.x << node->PosMan.y;

@@ -7,7 +7,7 @@
 #include "colors.hpp"
 #include <unordered_map>
 #include <sstream>
-
+#include <algorithm>
 
 
 #define UP 1
@@ -40,6 +40,7 @@ class Map {
                   this->rows = other.rows;
                   this->map = other.map;
                   this->cans = other.cans;
+                  this->deadlocks = other.deadlocks;
                 }
                 bool inMap(Point position);
                 bool TryToMove(Point pos, std::vector<Point> & Jews, int action);

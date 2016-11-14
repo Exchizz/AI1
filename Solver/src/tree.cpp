@@ -10,8 +10,9 @@
 
 std::vector<Point> Tree::GenerateTree(Map &map){
   this->map = map;
+
   // NOTE find only returns one element since there is only one man in the map.
-  Point PosMan = map.Find('M')[0];
+  Point PosMan = map.Find('M').front();
   auto PosJew = map.Find('J');
   PosGoals = map.Find('G');
 
@@ -19,7 +20,6 @@ std::vector<Point> Tree::GenerateTree(Map &map){
     std::cout << "Found goals: " << elm << std::endl;
   }
 
-  map.FindDeadLocks(PosGoals);
   //exit(0);
 
   root = new Node(PosMan,PosJew);
@@ -160,6 +160,7 @@ void Tree::Insert(Node * parent, int action){
 
 
     int tjek = 0;
+
     for(auto elm: parent->children ){
       if(*elm == *NewNode){
             tjek = 1;
@@ -207,7 +208,6 @@ void Tree::BredthFirst(Node * root){
     if(IsGoal(current)){
       std::cout << "Closed queue size: " << ClosedQueue.size() << std::endl;
       std::cout << "Reached goal" << std::endl;
-      exit(0);
       return;
       // BackTrack(curent)
     }
@@ -216,7 +216,7 @@ void Tree::BredthFirst(Node * root){
     Insert(current, LEFT);
     Insert(current, RIGHT);
     auto children = current->children;
-    //std::reverse(children.begin(),children.end());
+
     for(auto &child: children){
       if(!child->discovered){
         child->discovered = true;

@@ -7,6 +7,8 @@ int main(){
 	map.LoadMap("map.txt");
 	map.PrintMap();
 	auto PosGoals = map.Find('G');
+
+	map.FindDeadLocks(PosGoals);
 	//map.FindDeadLocks(PosGoals);
 	//map.PrintMap();
 	//map.Clean("MJ");
