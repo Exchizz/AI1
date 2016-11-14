@@ -8,19 +8,26 @@
 int sensor_1; // Line follower
 int sensor_2; // Line follower
 int sensor_3; // Segment sensor
+
+
+// Variables
+
 string plan; // declared solution array of max 500 elements
 char lastmove; // last move variable, should be P
 char current;
 
 int len;
 
-// Variables
-
 
 // Bools
 bool intersection_reached = false; // Bool for segment reached
 bool busy = false; // Bool for indicating whether a task is busy doing a move.
 bool line_follow = false; // Bool for checking line follow.
+
+bool turn_right = false;
+bool turn_left = false;
+bool turn_complete = false;
+
 //bool reverse = false; // Bool for reverse movement
 
 
@@ -77,6 +84,7 @@ sub follow_line(char lastmove, char current, bool busy){
 
 
 if(line_follow && busy == false){
+  busy = true;
 
   	while(intersection_reached == false){
 
@@ -87,8 +95,6 @@ if(line_follow && busy == false){
       sensor_1 = Sensor(IN_1);
       sensor_2 = Sensor(IN_2);
       sensor_3 = Sensor(IN_3);
-
-        busy = true;
 
         if (sensor_3 < THRESHOLD2){
           intersection_reached = true;
@@ -101,24 +107,19 @@ if(line_follow && busy == false){
 
   		  }
 
-
         else if(sensor_1 > THRESHOLD1){
           OnFwd(OUT_A, 0);
           OnFwd(OUT_B, 35);
 
         }
 
-
         else if(sensor_2 > THRESHOLD1){
         	OnFwd(OUT_B, 0);
         	OnFwd(OUT_A, 35);
 
         }
-        // No active breaking, the bang-bang line follower stops when this sensor
-        // hits the intersection.
     }
   busy = false;
-  //Wait(500);
   intersection_reached = false;
   }
 }
@@ -130,7 +131,7 @@ if(line_follow && busy == false){
 
 //-----------------------------------------------------------------------------
 //-----------------------------------turn--------------------------------------
-//void turn(char last, char current, bool busy){
+sub turn(char lastmove, char current, bool busy){
 
 
 // Pseudo code for switch statement for turning
@@ -139,66 +140,118 @@ if(line_follow && busy == false){
 //SetSensorLight(IN_3); // Segment sensor
 
 
+  switch(lastmove){
 
+    case 'U':
+        if(current == 'R'){
+          // turn right orientation wise
+          turn_right = true;
+        }
+        else if(current == 'L'){
+          // turn left orientation wise
+          turn_left = true;
+        }
+        else{
+          turn_left = false;
+          turn_right = false;
+        }
 
+        break;
 
-//switch(last){
+    case 'D':
+        if(current == 'R'){
+          // turn left orientation wise
+          turn_left = true;
+        }
+        else if(current == 'L'){
+          // turn right orientation wise
+          turn_right = true;
+        }
+        else{
+          turn_left = false;
+          turn_right = false;
+        }
 
-//  case "U":
-//      if(current == "R"){
-        // turn right orientation wise
-//        busy = true;
-//      }
-//      else if(current == "L"){
-        // turn left orientation wise
-//        busy = true;
-//      }
+        break;
 
-//      break;
+    case 'L':
+        if(current == 'U'){
+          // turn left orientation wise
+          turn_right = true;
+        }
+        else if(current == 'D'){
+          // turn right orientation wise
+          turn_left = true;
+        }
+        else{
+          turn_left = false;
+          turn_right = false;
+        }
 
-//  case "D":
-//      if(current == "R"){
-        // turn left orientation wise
-//        busy = true;
-//      }
-//      else if(current == "L"){
-        // turn right orientation wise
-//        busy = true;
-//      }
+        break;
 
-//      break;
+    case 'R':
+        if(current == 'U'){
+          // turn right orientation wise
+          turn_left = true;
+        }
+        else if(current == 'D'){
+          //turn left orientation wise
+          turn_right = true;
+        }
+        else{
+          turn_left = false;
+          turn_right = false;
+        }
 
-//  case "L":
-//      if(current == "U"){
-        // turn left orientation wise
-//        busy = true;
-//      }
-//      else if(current == "D"){
-        // turn right orientation wise
-//        busy = true;
-//      }
+        break;
 
-//      break;
+    default:
+        break;
+  }
 
-//  case "R":
-//      if(current == "U"){
-        // turn right orientation wise
-//        busy = true;
-//      }
-//      else if(current == "D"){
-        //turn left orientation wise
-//        busy = true;
-//      }
+  if((turn_left || turn_right) && busy == false){
+    busy = true;
+    while(!turn_complete) {
 
-//      break;
+      SetSensorLight(IN_1); // Line follower
+      SetSensorLight(IN_2); // Line follower
+      SetSensorLight(IN_3); // Segment sensor
 
-//  default:
-//    break;
-//}
+      sensor_1 = Sensor(IN_1);
+      sensor_2 = Sensor(IN_2);
+      sensor_3 = Sensor(IN_3);
 
+      if(sensor_1 > THRESHOLD1 && sensor_2 > THRESHOLD1){
+        OnFwdSync(OUT_AB, 50, 0);
+      }
 
+      else if(sensor_1 > THRESHOLD1){
+        OnFwd(OUT_A, 0);
+        OnFwd(OUT_B, 35);
+      }
 
-//}
+      else if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1) {
+        OnFwdSync(OUT_AB, 0, 0);
+
+        if (turn_right) {
+          // Initial Guess of 90 degrees turn
+          RotateMotorEx(OUT_AB, 25, 180, 100, true, true);
+
+          turn_complete = true;
+        }
+
+        else if (turn_left) {
+          // Initial Guess of 90 degrees turn
+          RotateMotorEx(OUT_AB, 25, 180, 100, true, true);
+
+          turn_complete = true;
+        }
+      }
+    }
+    busy = false;
+  }
+}
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -280,46 +333,19 @@ if(line_follow && busy == false){
 //---------------------------------Main Task-----------------------------------
 //-----------------------------------------------------------------------------
 task main(){
-      //rtn_code_1 = OpenFileRead("solution.txt", fsize, handle); // Loads the solution from the solver
 
-
-      ////----------------File Open Check-----------------
-      //if(rtn_code_1 != LDR_SUCCES){
-      //  TextOut(0, LCD_LINE1, "File Open Failed     ");
-      //  shutdown(SEC_8);
-      //  }
-
-      ////-------Read from file into solution string-------
-      //rtn_code_2 = Read(handle, solution);
-      //SetSensorLight(IN_1); // Line follower
-      //SetSensorLight(IN_2); // Line follower
-      //SetSensorLight(IN_3); // Segment sensor
-
-      //hile(true){
-      //TextOut(0, LCD_LINE1, NumToStr(SensorValue(IN_2)));
-     //}
-      //----------------File Read Check------------------
-      //if(rtn_code_2 == LDR_SUCCES){
      plan="DD";
-     lastmove = "D";
+     lastmove = 'D';
      len =  ArrayLen(plan);
 
         for (int i=0; i < len; i++)
         {
 
           follow_line(lastmove, plan[i], busy);
+          turn(lastmove, plan[i], busy);
 
-        //turn(lastmove ,solution[i], busy);
         //reverse(lastmove ,solution[i], busy);
-
-
           lastmove = plan[i];
 
         }
-
-      //else{
-        //TextOut(0, LCD_LINE1, "File Read Failed     ");
-      //  shutdown(SEC_8);
-      //}
-      //}
-}
+      }
