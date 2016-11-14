@@ -226,6 +226,7 @@ void Tree::BredthFirst(Node * root){
     }
   }
 
+  std::cout << "Closed queue size: " << ClosedQueue.size() << std::endl;
   std::cout << "Reached bottom of while loop, no solution found" << std::endl;
 }
 

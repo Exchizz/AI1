@@ -6,6 +6,6 @@ ADD_DEFINITIONS(
     -Wall
 )
 
-add_executable(parser src/point.cpp src/map.cpp src/tree.cpp src/node.cpp src/DOTgraph.cpp src/main.cpp)
+add_executable(parser src/point.cpp src/map.cpp src/tree.cpp src/node.cpp src/DOTgraph.cpp src/xxhash.cpp src/murmur3.cpp src/main.cpp)
 
 
