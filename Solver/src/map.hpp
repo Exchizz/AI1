@@ -35,7 +35,7 @@ class Map {
 
                 Map* Clone();
                 void AllocateMemory(int,int);
-                Map& operator=(Map& other){
+                void operator=(Map& other){
                   this->cols = other.cols;
                   this->rows = other.rows;
                   this->map = other.map;

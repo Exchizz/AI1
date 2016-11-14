@@ -187,6 +187,12 @@ bool Map::IsPosFree(Point pos, std::vector<Point> &Jews){
 
 
 bool Map::MoveJew(std::vector<Point> &Jews, Point CurrentJewPos, Point NewJewPos, int action){
+	if(NewJewPos.x == 1 or NewJewPos.y == rows-2 or NewJewPos.x == cols-2 or (NewJewPos.x < 5 and NewJewPos.y == 1)){
+		//std::cout << "Hit deadlock in wall" << std::endl;
+		return false;
+	}
+
+
 	auto search = deadlocks.find(hashPos(NewJewPos));
 	if(search != deadlocks.end()) {
 			std::cout << "Found " << search->first << " " << search->second << '\n';
@@ -196,7 +202,7 @@ bool Map::MoveJew(std::vector<Point> &Jews, Point CurrentJewPos, Point NewJewPos
 	for(auto & jew: Jews){
 		if(jew == CurrentJewPos){
 				jew = NewJewPos;
-		}
+			}
 	}
 	return true;
 }
