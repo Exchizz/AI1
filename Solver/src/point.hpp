@@ -24,6 +24,16 @@ public:
   bool operator==(const Point & rhs) const {
     return (x == rhs.x && y == rhs.y);
   }
+
+
+  bool operator<(Point const & b){
+    if(x == b.x){
+      return y < b.y;
+    }
+    return x < b.x;
+  }
+
+
 };
 std::ostream & operator<< (std::ostream &out, Point  &t);
 

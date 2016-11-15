@@ -44,31 +44,25 @@ public:
   std::string hash(Node * node){
     std::stringstream xy;
 
-    std::vector<uint16_t> points;
+    xy << node->PosMan.x << node->PosMan.y << std::endl;
+
+    std::vector<Point> points;
 
 
     for(auto jew : node->PosJew){
-      point.in[0] = jew.x;
-      point.in[1] = jew.y;
-
-      points.push_back( point.out );
+      points.push_back( jew );
     }
-
-    point.in[0] = node->PosMan.x;
-    point.in[1] = node->PosMan.y;
-
-    points.push_back( point.out );
-
 
     std::sort(points.begin(), points.end());
-    uint64_t sum = 0 ;
-    //for(auto elm : points){
-    for(int i = 0; i < points.size(); i++){
-      sum += (uint64_t)points[i] << i*sizeof(uint16_t);
+
+
+    for(auto elm : points){
+        xy <<  elm << std::endl;
     }
 
-    xy << sum << std::endl;
-    std::cout << node->PosMan << "sum : "<< xy.str() << std::endl;
+  //  xy << sum << std::endl;
+    //std::cout << node->PosMan << "sum : "<< xy.str() << std::endl;
+    //std::cout << xy.str() << std::endl;
     return xy.str();
   }
 };

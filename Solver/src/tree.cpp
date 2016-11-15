@@ -190,6 +190,7 @@ bool Tree::IsGoal(Node * node){
   }
   if(finish == PosGoals.size()){
     std::cout << "Found solution" << std::endl;
+    exit(0);
     return true;
   }
   return false;

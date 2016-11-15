@@ -9,7 +9,6 @@ int main(){
 	auto PosGoals = map.Find('G');
 
 	map.FindDeadLocks(PosGoals);
-	//map.FindDeadLocks(PosGoals);
 	//map.PrintMap();
 	//map.Clean("MJ");
 	//map.PrintMap();

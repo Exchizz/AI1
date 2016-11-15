@@ -2,10 +2,11 @@
 
 Node::Node(Point PosMan, std::vector<Point> &PosJew){
   static unsigned int counter = 0;
-
+/*
   if(counter++ % 1000 == 0){
     std::cout << "created nodes in % : " << (double(counter)/9107001)*100 << std::endl;
   }
+  */
   this->PosMan = PosMan;
   this->PosJew = PosJew;
   //children.reserve(8); // slows down
