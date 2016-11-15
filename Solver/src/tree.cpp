@@ -158,20 +158,21 @@ void Tree::Insert(Node * parent, int action){
     delete NewNode; // Delete the newly created node since it already exists. Use the variable NewNode anyways.
     NewNode = (*retpair.first).second;
 
+    parent->children.push_back(NewNode);
 
-    int tjek = 0;
-
+//    int tjek = 0;
+/*
     for(auto elm: parent->children ){
       if(*elm == *NewNode){
+            std::cout << "alright" << std::endl;
             tjek = 1;
             return;
         }
     }
-
-    assert(tjek <= 1);
-    if(tjek == 0){
-      parent->children.push_back(NewNode);
-    }
+*/
+//    assert(tjek <= 1);
+//    if(tjek == 0){
+//    }
   }
 }
 
@@ -208,6 +209,8 @@ void Tree::BredthFirst(Node * root_p){
     if(IsGoal(current)){
       std::cout << "Closed queue size: " << ClosedQueue.size() << std::endl;
       std::cout << "Reached goal" << std::endl;
+      assert(ClosedQueue.size() == 248178);
+
       return;
       // BackTrack(curent)
     }

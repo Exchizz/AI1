@@ -9,20 +9,4 @@ Node::Node(Point PosMan_p, std::vector<Point> &PosJew_p){
   this->PosMan = PosMan_p;
   this->PosJew = PosJew_p;
   //children.reserve(8); // slows down
-
-  if(PosMan.x == 1 or PosMan.x == 10){
-    //std::cout << "Box in outersides" << PosMan<< std::endl;
-  }
-
-  if(PosMan.y == 1 or PosMan.y == 5){
-    //std::cout << "Box in upper/lower sides:" << PosMan << std::endl;
-  }
-
-}
-[[deprecated]]
-void Node::Insert(Map & map,Point PosMan_p, std::vector<Point> &PosJew_p){
-  if (map[PosMan_p] == '.'){
-    Node * node = new Node(PosMan_p,PosJew_p);
-    children.push_back(node);
-  }
 }

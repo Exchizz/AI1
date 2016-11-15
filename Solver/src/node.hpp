@@ -14,6 +14,7 @@ public:
   std::vector<Point> PosJew;
   bool discovered = false;
   bool vizDotVisit = false;
+  Node* parent;
 
   bool operator==(const Node & rhs) const {
     bool retval = true;

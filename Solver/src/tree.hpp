@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include <queue>
 #include <sstream>
-#include "murmur3.h"
 #ifndef TREE_H
 #define TREE_H
 
@@ -41,7 +40,7 @@ public:
     std::stringstream xy;
 
     xy << node->PosMan.x << node->PosMan.y << std::endl;
-
+/*
     std::vector<Point> points_p;
 
 
@@ -50,9 +49,10 @@ public:
     }
 
     std::sort(points_p.begin(), points_p.end());
+*/
+  std::sort(node->PosJew.begin(), node->PosJew.end());
 
-
-    for(auto elm : points_p){
+    for(auto elm : node->PosJew){
         xy <<  elm << std::endl;
     }
 

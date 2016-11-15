@@ -28,10 +28,10 @@ int main(){
 	// NOTE end test find
 	Tree tree;
 	auto ManPositions = tree.GenerateTree(map);
-	DOTgraph graph;
+	/*DOTgraph graph;
 	graph.visualize(tree.root);
 	graph.SaveGraph("graph.dot");
-
+*/
 
 	//Map * NewMap = tree.ConstructMap();
 	//NewMap->PrintMap();
