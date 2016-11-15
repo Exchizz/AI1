@@ -17,7 +17,7 @@ public:
 
   bool operator==(const Node & rhs) const {
     bool retval = true;
-    for(int i = 0; i < PosJew.size(); i++){
+    for(unsigned int i = 0; i < PosJew.size(); i++){
       retval = retval && (PosJew[i] == rhs.PosJew[i]);
     }
 

@@ -2,9 +2,9 @@
 
 
 void Map::Clean(std::string ToRemove){
-	for(int x = 0; x < cols; x++){
-		for(int y = 0; y < rows; y++){
-			for(int i = 0; i < ToRemove.length(); i++){
+	for(unsigned int x = 0; x < cols; x++){
+		for(unsigned int y = 0; y < rows; y++){
+			for(unsigned int i = 0; i < ToRemove.length(); i++){
 		    if(ToRemove[i] == map[x][y]){
 						map[x][y] = '.';
 				}
@@ -14,10 +14,10 @@ void Map::Clean(std::string ToRemove){
 }
 
 
-int Map::FindDeadLocks(std::vector<Point> goals){
+int Map::FindDeadLocks(){
 	std::vector<std::pair<Point, int>> deadlocks_list;
-	for(int x = 1; x < cols-1; x++){
-		for(int y = 1; y < rows-1; y++){
+	for(unsigned int x = 1; x < cols-1; x++){
+		for(unsigned int y = 1; y < rows-1; y++){
 			// if the position is a wall, we can't put a jew here anyway..
 			if(map[x][y] == 'X' or map[x][y] == 'G') continue;
 			// Up left
@@ -51,7 +51,7 @@ int Map::FindDeadLocks(std::vector<Point> goals){
 				deadlock1.second = 1;
 				deadlock2.second = 1;
 				bool valid_deadlock = true;
-				for(int x = std::min(deadlock1.first.x, deadlock2.first.x); x <= std::max(deadlock1.first.x, deadlock2.first.x); x++){
+				for(unsigned int x = std::min(deadlock1.first.x, deadlock2.first.x); x <= std::max(deadlock1.first.x, deadlock2.first.x); x++){
 					if( map[x][deadlock1.first.y] == 'G' or map[x][deadlock1.first.y] == 'M' ){
 						valid_deadlock = false;
 					}
@@ -59,7 +59,7 @@ int Map::FindDeadLocks(std::vector<Point> goals){
 				}
 
 				if(valid_deadlock){
-					for(int x = std::min(deadlock1.first.x, deadlock2.first.x); x <= std::max(deadlock1.first.x, deadlock2.first.x); x++){
+					for(unsigned int x = std::min(deadlock1.first.x, deadlock2.first.x); x <= std::max(deadlock1.first.x, deadlock2.first.x); x++){
 							std::cout << "deadlock position: " << "x: " << x << " y: " << deadlock2.first.y << std::endl;
 							deadlocks.insert({ hashPos(Point(x, deadlock1.first.y)),1});
 					}
@@ -88,7 +88,7 @@ int Map::FindDeadLocks(std::vector<Point> goals){
 					deadlock1.second = 1;
 					deadlock2.second = 1;
 					bool valid_deadlock = true;
-					for(int y = std::min(deadlock1.first.y, deadlock2.first.y); y <= std::max(deadlock1.first.y, deadlock2.first.y); y++){
+					for(unsigned int y = std::min(deadlock1.first.y, deadlock2.first.y); y <= std::max(deadlock1.first.y, deadlock2.first.y); y++){
 						if( map[deadlock1.first.x][y] == 'G' or map[deadlock1.first.x][y] == 'M' ){
 							valid_deadlock = false;
 						}
@@ -96,7 +96,7 @@ int Map::FindDeadLocks(std::vector<Point> goals){
 					}
 
 					if(valid_deadlock){
-						for(int y = std::min(deadlock1.first.y, deadlock2.first.y); y <= std::max(deadlock1.first.y, deadlock2.first.y); y++){
+						for(unsigned int y = std::min(deadlock1.first.y, deadlock2.first.y); y <= std::max(deadlock1.first.y, deadlock2.first.y); y++){
 								std::cout << "deadlock position: " << "x: " << deadlock1.first.x << " y: " << y << std::endl;
 								deadlocks.insert({ hashPos(Point(deadlock1.first.x, y)),1});
 						}
@@ -110,8 +110,8 @@ return 0;
 
 std::vector<Point> Map::Find(char needle){
 	std::vector<Point> results;
-	for (int x = 0; x < cols; x++){
-		for(int y = 0; y < rows; y++){
+	for (unsigned int x = 0; x < cols; x++){
+		for(unsigned int y = 0; y < rows; y++){
 			//If needle is in haystack
 			if(needle == map[x][y]){
 				results.push_back( Point(x,y) );
@@ -156,8 +156,8 @@ void Map::LoadMap(std::string filename){
 	char b;
 	mapfile.get(b);
 	// Read file to memory
-	for(int y = 0; y < rows; y++ ){
-		for(int x = 0; x< cols; x++){
+	for(unsigned int y = 0; y < rows; y++ ){
+		for(unsigned int x = 0; x< cols; x++){
 			mapfile.get(b);
 			map[x][y] = b;
 		}
@@ -167,17 +167,17 @@ void Map::LoadMap(std::string filename){
 
 }
 
-void Map::AllocateMemory(int rows, int cols){
+void Map::AllocateMemory(int rows_p, int cols_p){
 	// Initialize map
-	map = new char*[rows ];
-	for(int i = 0; i < rows ; i++){
-		map[i] = new char[cols];
+	map = new char*[ rows_p ];
+	for(int i = 0; i < rows_p ; i++){
+		map[i] = new char[cols_p];
 	}
 
 }
 
 bool Map::inMap(Point position){
-	if(position.x > cols -1 || position.y > rows -1 || position.y < 0 || position.x < 0){
+	if(position.x > cols -1 || position.y > rows -1){
 		std::cerr << "Out of range" << position << std::endl;
 		return false;
 	}
@@ -187,14 +187,14 @@ bool Map::inMap(Point position){
 
 void Map::PrintMap(){
 	std::cout << "   ";
-	for(int x = 0; x < cols; x++){
+	for(unsigned int x = 0; x < cols; x++){
 		std::cout << x << "  ";
 	}
 	std::cout << std::endl;
 
-	for(int y = 0; y < rows; y++ ){
+	for(unsigned int y = 0; y < rows; y++ ){
 		std::cout << y << " ";
-		for(int x = 0; x < cols; x++){
+		for(unsigned int x = 0; x < cols; x++){
 			switch(map[x][y]){
 				case 'M':
 					std::cout <<  " " << KYEL << map[x][y] << RST << " ";
@@ -226,8 +226,8 @@ Map* Map::Clone(){
 	map_clone->rows = rows;
 	map_clone->cans = cans;
 	map_clone->AllocateMemory(rows, cols);
-	for(int y = 0; y < rows; y++ ){
-		for(int x = 0; x < cols; x++){
+	for(unsigned int y = 0; y < rows; y++ ){
+		for(unsigned int x = 0; x < cols; x++){
 			map_clone->map[x][y] = map[x][y];
 		}
 	}
@@ -252,8 +252,7 @@ bool Map::IsPosFree(Point pos, std::vector<Point> &Jews){
 }
 
 
-bool Map::MoveJew(std::vector<Point> &Jews, Point CurrentJewPos, Point NewJewPos, int action){
-
+bool Map::MoveJew(std::vector<Point> &Jews, Point CurrentJewPos, Point NewJewPos){
 	auto search = deadlocks.find(hashPos(NewJewPos));
 	if(search != deadlocks.end()) {
 			return false;
@@ -273,7 +272,7 @@ bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 				if(map[pos.x][pos.y-1] == '.' && !IsPosJew(Jews, Point(pos.x, pos.y-1))){
 					auto NewJewPos = Point(pos.x, pos.y-1);
 					auto CurrentJewPos = Point(pos.x, pos.y);
-					return MoveJew(Jews, CurrentJewPos, NewJewPos, action);
+					return MoveJew(Jews, CurrentJewPos, NewJewPos);
 				} else {
 					return false;
 				}
@@ -282,7 +281,7 @@ bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 				if(map[pos.x][pos.y+1] == '.' && !IsPosJew(Jews, Point(pos.x, pos.y+1))){
 					auto NewJewPos = Point(pos.x, pos.y+1);
 					auto CurrentJewPos = Point(pos.x, pos.y);
-					return MoveJew(Jews, CurrentJewPos, NewJewPos, action);
+					return MoveJew(Jews, CurrentJewPos, NewJewPos);
 				} else {
 					return false;
 				}
@@ -292,7 +291,7 @@ bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 				if(map[pos.x -1][pos.y] == '.'&& !IsPosJew(Jews, Point(pos.x-1, pos.y))){
 					auto NewJewPos = Point(pos.x - 1, pos.y);
 					auto CurrentJewPos = Point(pos.x, pos.y);
-					return MoveJew(Jews, CurrentJewPos, NewJewPos, action);
+					return MoveJew(Jews, CurrentJewPos, NewJewPos);
 				} else {
 					return false;
 				}
@@ -302,7 +301,7 @@ bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 				if(map[pos.x+1][pos.y] == '.' && !IsPosJew(Jews, Point(pos.x+1, pos.y))){
 					auto NewJewPos = Point(pos.x+1, pos.y);
 					auto CurrentJewPos = Point(pos.x, pos.y);
-					return MoveJew(Jews, CurrentJewPos, NewJewPos, action);
+					return MoveJew(Jews, CurrentJewPos, NewJewPos);
 				} else {
 					return false;
 				}

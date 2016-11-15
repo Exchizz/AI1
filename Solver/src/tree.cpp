@@ -8,8 +8,8 @@
 
 
 
-std::vector<Point> Tree::GenerateTree(Map &map){
-  this->map = map;
+std::vector<Point> Tree::GenerateTree(Map &map_p){
+  this->map = map_p;
 
   // NOTE find only returns one element since there is only one man in the map.
   Point PosMan = map.Find('M').front();
@@ -182,7 +182,7 @@ std::vector<Point> Tree::ExploreMap(Node *node){
 
 
 bool Tree::IsGoal(Node * node){
-  int finish = 0;
+  unsigned int finish = 0;
   for(auto goal: PosGoals){
     for(auto jew : node->PosJew){
       finish += (goal == jew);
@@ -190,18 +190,17 @@ bool Tree::IsGoal(Node * node){
   }
   if(finish == PosGoals.size()){
     std::cout << "Found solution" << std::endl;
-    exit(0);
     return true;
   }
   return false;
 }
 
-void Tree::BredthFirst(Node * root){
+void Tree::BredthFirst(Node * root_p){
   std::queue<Node*> OpenQueue;
   std::queue<Node*> ClosedQueue;
 
-  OpenQueue.push(root);
-  root->discovered = true;
+  OpenQueue.push(root_p);
+  root_p->discovered = true;
   while(!OpenQueue.empty()){
     auto current = OpenQueue.front();
     OpenQueue.pop();

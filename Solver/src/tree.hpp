@@ -36,27 +36,23 @@ public:
     NodesInTree.reserve(32000000);
   }
 
-  union {
-    uint8_t in[2];
-    uint16_t out;
-  } point;
 
   std::string hash(Node * node){
     std::stringstream xy;
 
     xy << node->PosMan.x << node->PosMan.y << std::endl;
 
-    std::vector<Point> points;
+    std::vector<Point> points_p;
 
 
     for(auto jew : node->PosJew){
-      points.push_back( jew );
+      points_p.push_back( jew );
     }
 
-    std::sort(points.begin(), points.end());
+    std::sort(points_p.begin(), points_p.end());
 
 
-    for(auto elm : points){
+    for(auto elm : points_p){
         xy <<  elm << std::endl;
     }
 

@@ -6,9 +6,9 @@ int main(){
 	Map map;
 	map.LoadMap("map.txt");
 	map.PrintMap();
-	auto PosGoals = map.Find('G');
+	//auto PosGoals = map.Find('G');
 
-	map.FindDeadLocks(PosGoals);
+	map.FindDeadLocks();
 	//map.PrintMap();
 	//map.Clean("MJ");
 	//map.PrintMap();

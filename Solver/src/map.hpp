@@ -24,7 +24,7 @@ class Map {
                 std::ifstream mapfile;
                 RawMap map;
         public:
-                int cols, rows, cans ;
+                unsigned int cols, rows, cans ;
                 void LoadMap(std::string filename);
                 void PrintMap();
                 RawMap GetMap();
@@ -48,8 +48,8 @@ class Map {
                 bool IsPosJew(std::vector<Point> & Jews, Point pos);
                 bool IsPosWall(Point pos);
                 bool IsPosFree(Point pos, std::vector<Point> &Jews);
-                bool MoveJew(std::vector<Point> &Jews, Point CurrentJewPos, Point NewJewPos, int action);
-                int  FindDeadLocks(std::vector<Point> goals);
+                bool MoveJew(std::vector<Point> &Jews, Point CurrentJewPos, Point NewJewPos);
+                int  FindDeadLocks();
 
                 std::string hashPos(Point pos){
                   std::stringstream xy;

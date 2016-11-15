@@ -1,7 +1,7 @@
 #include "point.hpp"
-Point::Point(unsigned int x, unsigned int y){
-    this->x = x;
-    this->y = y;
+Point::Point(unsigned int xparam, unsigned int yparam){
+    x = xparam;
+    y = yparam;
 }
 
 std::ostream & operator<< (std::ostream &out, Point &t){

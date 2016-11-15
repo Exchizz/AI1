@@ -23,3 +23,9 @@ ADD_DEFINITIONS(
 add_executable(parser src/point.cpp src/map.cpp src/tree.cpp src/node.cpp src/DOTgraph.cpp src/xxhash.cpp src/murmur3.cpp src/main.cpp)
 
 
+add_custom_target(run
+    COMMAND ./parser
+    DEPENDS run
+    WORKING_DIRECTORY ${CMAKE_PROJECT_DIR}
+)
+
