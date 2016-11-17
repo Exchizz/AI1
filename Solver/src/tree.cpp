@@ -181,13 +181,33 @@ bool Tree::IsGoal(Node * node){
 
 
 
-void BackTrack(Node * node){
+Point BackTrackSolution(Node * node){
     static int counter = 0;
-    if(node == nullptr){
-      return;
+    if(node->parent == nullptr){
+      return node->PosMan;
     }
     std::cout << "ittr: " << counter++ << node->PosMan << std::endl;
-    BackTrack(node->parent);
+    auto ManPosOld = BackTrackSolution(node->parent);
+
+    //x_gl,y_gl == x_ny+1,y_ny
+    //std::cout << ManPosOld << node->PosMan << std::endl;
+    if(node->PosMan.x == ManPosOld.x+1){
+      std::cout << "R" << std::endl;
+    }
+
+    if(node->PosMan.x == ManPosOld.x-1){
+      std::cout << "L" << std::endl;
+    }
+
+
+    if(node->PosMan.y == ManPosOld.y-1){
+      std::cout << "U" << std::endl;
+    }
+
+    if(node->PosMan.y == ManPosOld.y+1){
+      std::cout << "D" << std::endl;
+    }
+    return node->PosMan;
 }
 
 void Tree::BredthFirst(Node * root_p){
@@ -205,7 +225,7 @@ void Tree::BredthFirst(Node * root_p){
     if(IsGoal(current)){
       std::cout << "Closed queue size: " << ClosedQueue.size() << std::endl;
       std::cout << "Reached goal" << std::endl;
-      BackTrack(current);
+      BackTrackSolution(current);
       std::cout << "Backtrack done" << std::endl;
 /*
       for(auto elm : ClosedQueue){
