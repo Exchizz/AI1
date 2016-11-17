@@ -17,7 +17,7 @@ ADD_DEFINITIONS(
     -Wno-unused-variable 	
     -pedantic		
     -Wunused-variable	
-    -g			
+#    -g			
 )
 
 add_executable(parser src/point.cpp src/map.cpp src/tree.cpp src/node.cpp src/DOTgraph.cpp src/main.cpp)

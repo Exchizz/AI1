@@ -3,7 +3,7 @@
 #include <cassert>
 #include <stack>
 #include <algorithm>
-
+#include<list>
 
 
 
@@ -144,7 +144,6 @@ void Tree::Insert(Node * parent, int action){
   if(NewNode == nullptr)
     return;
   auto retpair = NodesInTree.emplace( hash(NewNode), NewNode);
-  //auto retpair = NodesInTree.emplace(*NewNode,NewNode); // returns 1 if new node inserted, else 0
     /*
       if = iterrator to element
         element:
@@ -152,28 +151,12 @@ void Tree::Insert(Node * parent, int action){
           second: value
       second = success if insert
     */
-  if(retpair.second){
-    parent->children.push_back(NewNode);
-  } else {
+  if(!retpair.second){
     delete NewNode; // Delete the newly created node since it already exists. Use the variable NewNode anyways.
     NewNode = (*retpair.first).second;
-
-    parent->children.push_back(NewNode);
-
-//    int tjek = 0;
-/*
-    for(auto elm: parent->children ){
-      if(*elm == *NewNode){
-            std::cout << "alright" << std::endl;
-            tjek = 1;
-            return;
-        }
-    }
-*/
-//    assert(tjek <= 1);
-//    if(tjek == 0){
-//    }
   }
+
+  parent->children.push_back(NewNode);
 }
 
 std::vector<Point> Tree::ExploreMap(Node *node){
@@ -198,17 +181,28 @@ bool Tree::IsGoal(Node * node){
 
 void Tree::BredthFirst(Node * root_p){
   std::queue<Node*> OpenQueue;
-  std::queue<Node*> ClosedQueue;
+  std::list<Node*> ClosedQueue;
 
   OpenQueue.push(root_p);
   root_p->discovered = true;
   while(!OpenQueue.empty()){
     auto current = OpenQueue.front();
     OpenQueue.pop();
-    ClosedQueue.push(current);
+
+
+    ClosedQueue.push_back(current);
     if(IsGoal(current)){
       std::cout << "Closed queue size: " << ClosedQueue.size() << std::endl;
       std::cout << "Reached goal" << std::endl;
+
+      for(auto elm : ClosedQueue){
+        std::cerr << elm->PosMan << ",";
+        std::sort(elm->PosJew.begin(), elm->PosJew.end());
+        for(auto jew : elm->PosJew){
+          std::cerr << jew << ",";
+        }
+        std::cerr << std::endl;
+      }
       assert(ClosedQueue.size() == 248178);
 
       return;
