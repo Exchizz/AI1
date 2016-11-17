@@ -179,6 +179,17 @@ bool Tree::IsGoal(Node * node){
   return false;
 }
 
+
+
+void BackTrack(Node * node){
+    static int counter = 0;
+    if(node == nullptr){
+      return;
+    }
+    std::cout << "ittr: " << counter++ << node->PosMan << std::endl;
+    BackTrack(node->parent);
+}
+
 void Tree::BredthFirst(Node * root_p){
   std::queue<Node*> OpenQueue;
   std::list<Node*> ClosedQueue;
@@ -194,7 +205,9 @@ void Tree::BredthFirst(Node * root_p){
     if(IsGoal(current)){
       std::cout << "Closed queue size: " << ClosedQueue.size() << std::endl;
       std::cout << "Reached goal" << std::endl;
-
+      BackTrack(current);
+      std::cout << "Backtrack done" << std::endl;
+/*
       for(auto elm : ClosedQueue){
         std::cerr << elm->PosMan << ",";
         std::sort(elm->PosJew.begin(), elm->PosJew.end());
@@ -203,21 +216,27 @@ void Tree::BredthFirst(Node * root_p){
         }
         std::cerr << std::endl;
       }
-      assert(ClosedQueue.size() == 248178);
+      */
+      assert(ClosedQueue.size() == 248064);
 
       return;
       // BackTrack(curent)
     }
+    Insert(current, RIGHT);
+    Insert(current, LEFT);
     Insert(current, UP);
     Insert(current, DOWN);
-    Insert(current, LEFT);
-    Insert(current, RIGHT);
     auto children = current->children;
 
     for(auto &child: children){
+      //int distance = current.distance +1;
+      // If node haven't been visited or the cost is smaller
+    //      if(!child->discovered or distance < child->distance){
       if(!child->discovered){
         child->discovered = true;
-
+        // Update distance
+//        child->distance = distance;
+        child->parent = current;
         OpenQueue.push(child);
       }
     }
