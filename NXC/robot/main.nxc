@@ -396,27 +396,29 @@ if (reverse && !busy) {
 
     //  Backwards linefollow for a short while (needs to be corected for backwards movement)
 
-    for (int i = 0; i < 100; i++) { // dummy counter, adjust...
-      SetSensorLight(IN_1); // Line follower
-      SetSensorLight(IN_2); // Line follower
-      SetSensorLight(IN_3); // Segment sensor
+    //for (int i = 0; i < 100; i++) { // dummy counter, adjust...
+    //  SetSensorLight(IN_1); // Line follower
+    //  SetSensorLight(IN_2); // Line follower
+    //  SetSensorLight(IN_3); // Segment sensor
 
-      sensor_1 = Sensor(IN_1);
-      sensor_2 = Sensor(IN_2);
-      sensor_3 = Sensor(IN_3);
-      if(sensor_1 > THRESHOLD1 && sensor_2 > THRESHOLD1){
-        OnFwdSync(OUT_AB, -SPEED, 0);
-      }
+    //  sensor_1 = Sensor(IN_1);
+    //  sensor_2 = Sensor(IN_2);
+    //  sensor_3 = Sensor(IN_3);
+    //  if(sensor_1 > THRESHOLD1 && sensor_2 > THRESHOLD1){
+    //    OnFwdSync(OUT_AB, -SPEED, 0);
+    //  }
 
-      else if(sensor_1 > THRESHOLD1){
-        OnFwd(OUT_B, 0);
-        OnFwd(OUT_A, -TURNSPEED);
-      }
-      else if(sensor_2 > THRESHOLD1){
-        OnFwd(OUT_A, 0);
-        OnFwd(OUT_B, - TURNSPEED);
-      }
-    }
+    //  else if(sensor_1 > THRESHOLD1){
+    //    OnFwd(OUT_B, 0);
+    //    OnFwd(OUT_A, -TURNSPEED);
+    //  }
+    //  else if(sensor_2 > THRESHOLD1){
+    //    OnFwd(OUT_A, 0);
+    //    OnFwd(OUT_B, - TURNSPEED);
+    //  }
+    //}
+
+    RotateMotor(OUT_AB,50, 60);
 
 
     // Perform the 180 degree turn - turns until linefollow sensors are on to of
@@ -487,7 +489,7 @@ if (reverse && !busy) {
 //-----------------------------------------------------------------------------
 task main(){
 
-     plan = "UD";
+     plan = "URUD";
      lastmove = 'P';
 
      if(StrIndex(plan,0) == 'U')
