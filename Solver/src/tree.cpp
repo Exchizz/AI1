@@ -8,7 +8,7 @@
 
 
 
-std::vector<Point> Tree::GenerateTree(Map &map_p){
+void Tree::GenerateTree(Map &map_p){
   this->map = map_p;
 
   // NOTE find only returns one element since there is only one man in the map.
@@ -19,8 +19,6 @@ std::vector<Point> Tree::GenerateTree(Map &map_p){
   for(auto elm: PosGoals){
     std::cout << "Found goals: " << elm << std::endl;
   }
-
-  //exit(0);
 
   root = new Node(PosMan,PosJew);
   // Add root note to hashmap
@@ -38,9 +36,9 @@ std::vector<Point> Tree::GenerateTree(Map &map_p){
   // NOTE recursively explore the map Depth first method
   //auto ManPositions = ExploreMap(root);
 
-  BredthFirst(root);
-  std::vector<Point> ManPositions;
-  return ManPositions;
+  //BredthFirst(root);
+  //Dijkstra(root);
+  return;
 }
 
 unsigned int Tree::Nodes(){
@@ -182,11 +180,9 @@ bool Tree::IsGoal(Node * node){
 
 
 Point BackTrackSolution(Node * node){
-    static int counter = 0;
     if(node->parent == nullptr){
       return node->PosMan;
     }
-    std::cout << "ittr: " << counter++ << node->PosMan << std::endl;
     auto ManPosOld = BackTrackSolution(node->parent);
 
     char out;
@@ -199,14 +195,14 @@ Point BackTrackSolution(Node * node){
     return node->PosMan;
 }
 
-void Tree::BredthFirst(Node * root_p){
-  std::queue<Node*> OpenQueue;
+void Tree::Dijkstra(){
+  std::cout << "-------Using dijkstra search -------" << std::endl;
+  std::priority_queue<Node*,std::vector<Node*>,LessThanByDistance> OpenQueue;
   std::list<Node*> ClosedQueue;
-
-  OpenQueue.push(root_p);
-  root_p->discovered = true;
+  OpenQueue.push(root);
+  root->distance = 0;
   while(!OpenQueue.empty()){
-    auto current = OpenQueue.front();
+    auto current = OpenQueue.top();
     OpenQueue.pop();
 
 
@@ -214,20 +210,12 @@ void Tree::BredthFirst(Node * root_p){
     if(IsGoal(current)){
       std::cout << "Closed queue size: " << ClosedQueue.size() << std::endl;
       std::cout << "Reached goal" << std::endl;
+      //exit(0);
       BackTrackSolution(current);
       std::cout << std::endl;
       std::cout << "Backtrack done" << std::endl;
-/*
-      for(auto elm : ClosedQueue){
-        std::cerr << elm->PosMan << ",";
-        std::sort(elm->PosJew.begin(), elm->PosJew.end());
-        for(auto jew : elm->PosJew){
-          std::cerr << jew << ",";
-        }
-        std::cerr << std::endl;
-      }
-      */
-      assert(ClosedQueue.size() == 248064);
+
+      //assert(ClosedQueue.size() == 248064);
 
       return;
       // BackTrack(curent)
@@ -238,14 +226,72 @@ void Tree::BredthFirst(Node * root_p){
     Insert(current, DOWN);
     auto children = current->children;
 
+    int NewDistance = current->distance + 1;
     for(auto &child: children){
-      //int distance = current.distance +1;
-      // If node haven't been visited or the cost is smaller
-    //      if(!child->discovered or distance < child->distance){
+      /*
+      std::cout << "current: " << child->distance << " new: " << NewDistance << std::endl;
+
+      if(child in OpenList){
+        if(OpenList[child] < NewDistance){
+          continue;
+        }
+      }
+
+
+
+      if(child in ClosedList){
+        if(ClosedList[child] < NewDistance){
+          continue;
+        }
+      }
+      */
+
+      if(NewDistance < child->distance){
+        child->parent = current;
+        child->distance = NewDistance;
+        OpenQueue.push(child);
+      }
+    }
+  }
+  std::cout << "Closed queue size: " << ClosedQueue.size() << std::endl;
+  std::cout << "Reached bottom of while loop, no solution found" << std::endl;
+}
+
+
+void Tree::BredthFirst(){
+  std::cout << "-------Using breadthFirst search -------" << std::endl;
+  std::queue<Node*> OpenQueue;
+  std::list<Node*> ClosedQueue;
+  OpenQueue.push(root);
+  root->discovered = true;
+  while(!OpenQueue.empty()){
+    auto current = OpenQueue.front();
+    OpenQueue.pop();
+
+
+    if(IsGoal(current)){
+      std::cout << "Closed queue size: " << ClosedQueue.size() << std::endl;
+      std::cout << "Reached goal" << std::endl;
+      BackTrackSolution(current);
+      std::cout << std::endl;
+      assert(ClosedQueue.size() == 248063);
+
+      return;
+      // BackTrack(curent)
+    }
+    ClosedQueue.push_back(current);
+
+    Insert(current, RIGHT);
+    Insert(current, LEFT);
+    Insert(current, UP);
+    Insert(current, DOWN);
+    auto children = current->children;
+
+    for(auto &child: children){
       if(!child->discovered){
+
+
         child->discovered = true;
-        // Update distance
-//        child->distance = distance;
         child->parent = current;
         OpenQueue.push(child);
       }
