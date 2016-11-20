@@ -23,7 +23,6 @@ char current;
 int len;
 
 
-
 // Bools
 bool intersection_reached = false; // Bool for segment reached
 bool busy = false; // Bool for indicating whether a task is busy doing a move.
@@ -109,7 +108,7 @@ if(line_follow && busy == false){
 
       busy = true;
 
-        if (sensor_3 < THRESHOLD2){
+        if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1){
           intersection_reached = true;
           Wait(150);
           OnFwdSync(OUT_AB, 0, 0);
@@ -239,7 +238,8 @@ sub turn_behaviour(char lastmove, char current, bool busy){
         OnFwd(OUT_A, TURNSPEED);
       }
 
-      else if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1) {
+      //else if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1) {
+      else if(sensor_3 < THRESHOLD2){
         OnFwdSync(OUT_AB, 0, 0);
             if (turn_right) {
 
@@ -271,7 +271,7 @@ sub turn_behaviour(char lastmove, char current, bool busy){
               	OnFwd(OUT_B, 0);
               	OnFwd(OUT_A, TURNSPEED);
               }
-              if (sensor_3 < THRESHOLD2){
+              if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1){
                 turn_complete = true;
                 Wait(150);
                 OnFwdSync(OUT_AB, 0, 0);
@@ -311,7 +311,7 @@ sub turn_behaviour(char lastmove, char current, bool busy){
               	OnFwd(OUT_B, 0);
               	OnFwd(OUT_A, TURNSPEED);
               }
-              if (sensor_3 < THRESHOLD2){
+              if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1){
                 turn_complete = true;
                 Wait(150);
                 OnFwdSync(OUT_AB, 0, 0);
@@ -445,7 +445,15 @@ if (reverse && !busy) {
     // Line follow to next segment
       while(intersection_reached == false){
 
-        if (sensor_3 < THRESHOLD2){
+        SetSensorLight(IN_1); // Line follower
+        SetSensorLight(IN_2); // Line follower
+        SetSensorLight(IN_3); // Segment sensor
+
+        sensor_1 = Sensor(IN_1);
+        sensor_2 = Sensor(IN_2);
+        sensor_3 = Sensor(IN_3);
+
+        if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1){
           turn_complete = true;
           Wait(150);
           OnFwdSync(OUT_AB, 0, 0);
@@ -504,7 +512,7 @@ task main(){
 
           follow_line(lastmove, plan[i], busy);
           turn_behaviour(lastmove, plan[i], busy);
-          reverse_behaviour(lastmove ,plan[i], busy);
+          //reverse_behaviour(lastmove ,plan[i], busy);
 
         //test[0] = StrIndex(plan,i);
         //if (StrIndex(plan,0) == 'U')
