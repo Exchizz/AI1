@@ -8,7 +8,7 @@
 
 
 
-std::vector<Point> Tree::GenerateTree(Map &map_p){
+void Tree::GenerateTree(Map &map_p){
   this->map = map_p;
 
   // NOTE find only returns one element since there is only one man in the map.
@@ -19,8 +19,6 @@ std::vector<Point> Tree::GenerateTree(Map &map_p){
   for(auto elm: PosGoals){
     std::cout << "Found goals: " << elm << std::endl;
   }
-
-  //exit(0);
 
   root = new Node(PosMan,PosJew);
   // Add root note to hashmap
@@ -39,9 +37,8 @@ std::vector<Point> Tree::GenerateTree(Map &map_p){
   //auto ManPositions = ExploreMap(root);
 
   //BredthFirst(root);
-  Dijkstra(root);
-  std::vector<Point> ManPositions;
-  return ManPositions;
+  //Dijkstra(root);
+  return;
 }
 
 unsigned int Tree::Nodes(){
@@ -183,11 +180,9 @@ bool Tree::IsGoal(Node * node){
 
 
 Point BackTrackSolution(Node * node){
-    static int counter = 0;
     if(node->parent == nullptr){
       return node->PosMan;
     }
-    std::cout << "ittr: " << counter++ << node->PosMan << std::endl;
     auto ManPosOld = BackTrackSolution(node->parent);
 
     char out;
@@ -200,11 +195,12 @@ Point BackTrackSolution(Node * node){
     return node->PosMan;
 }
 
-void Tree::Dijkstra(Node * root_p){
+void Tree::Dijkstra(){
+  std::cout << "-------Using dijkstra search -------" << std::endl;
   std::priority_queue<Node*,std::vector<Node*>,LessThanByDistance> OpenQueue;
   std::list<Node*> ClosedQueue;
-  OpenQueue.push(root_p);
-  root_p->distance = 0;
+  OpenQueue.push(root);
+  root->distance = 0;
   while(!OpenQueue.empty()){
     auto current = OpenQueue.top();
     OpenQueue.pop();
@@ -262,11 +258,12 @@ void Tree::Dijkstra(Node * root_p){
 }
 
 
-void Tree::BredthFirst(Node * root_p){
+void Tree::BredthFirst(){
+  std::cout << "-------Using breadthFirst search -------" << std::endl;
   std::queue<Node*> OpenQueue;
   std::list<Node*> ClosedQueue;
-  OpenQueue.push(root_p);
-  root_p->discovered = true;
+  OpenQueue.push(root);
+  root->discovered = true;
   while(!OpenQueue.empty()){
     auto current = OpenQueue.front();
     OpenQueue.pop();

@@ -42,7 +42,6 @@ struct LessThanByDistance
 {
   bool operator()(const Node * lhs, const Node * rhs) const
   {
-    //std::cout << "compare left: " << lhs->distance << " right:" << rhs->distance << std::endl;
     return (lhs->distance > rhs->distance);
   }
 };

@@ -12,7 +12,7 @@
 class Tree {
 private:
 public:
-  std::vector<Point> GenerateTree(Map &map);
+  void GenerateTree(Map &map);
   void Insert(Point , Point);
   //Map * ConstructMap();
   std::vector<Point> ExploreMap(Node *node);
@@ -24,17 +24,15 @@ public:
   std::vector<Point> PosGoals;
   std::vector<Point> points;
   int counter_debug = 0;
-  void BredthFirst(Node * root);
-  void Dijkstra(Node * root_p);
+  /* Solvers */
+  void BredthFirst();
+  void Dijkstra();
+  /* Solvers end */
   bool IsGoal(Node * node);
   void Insert(Node * child, int action);
   Node * GenerateNode(Node * child, int action);
 
   std::unordered_map<std::string, Node*> NodesInTree;
-
-  Tree(){
-    //NodesInTree.reserve(32000000);
-  }
 
 
   std::string hash(Node * node){
