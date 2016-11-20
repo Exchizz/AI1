@@ -10,10 +10,10 @@
 #include <algorithm>
 
 
-#define UP 1
-#define LEFT 2
-#define RIGHT 3
-#define DOWN 4
+#define UP 0
+#define LEFT 1
+#define RIGHT 2
+#define DOWN 3
 
 #ifndef MAP_H
 #define MAP_H

@@ -32,7 +32,7 @@ public:
   std::unordered_map<std::string, Node*> NodesInTree;
 
   Tree(){
-    NodesInTree.reserve(32000000);
+    //NodesInTree.reserve(32000000);
   }
 
 
@@ -40,25 +40,12 @@ public:
     std::stringstream xy;
 
     xy << node->PosMan.x << node->PosMan.y << std::endl;
-/*
-    std::vector<Point> points_p;
 
-
-    for(auto jew : node->PosJew){
-      points_p.push_back( jew );
-    }
-
-    std::sort(points_p.begin(), points_p.end());
-*/
-  std::sort(node->PosJew.begin(), node->PosJew.end());
+    std::sort(node->PosJew.begin(), node->PosJew.end());
 
     for(auto elm : node->PosJew){
         xy <<  elm << std::endl;
     }
-
-  //  xy << sum << std::endl;
-    //std::cout << node->PosMan << "sum : "<< xy.str() << std::endl;
-    //std::cout << xy.str() << std::endl;
     return xy.str();
   }
 };
