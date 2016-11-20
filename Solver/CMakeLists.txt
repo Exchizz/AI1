@@ -20,11 +20,11 @@ ADD_DEFINITIONS(
 #    -g			
 )
 
-add_executable(parser src/point.cpp src/map.cpp src/tree.cpp src/node.cpp src/DOTgraph.cpp src/main.cpp)
+add_executable(main src/point.cpp src/map.cpp src/tree.cpp src/node.cpp src/DOTgraph.cpp src/main.cpp)
 
 
 add_custom_target(run
-    COMMAND time ./parser
+    COMMAND time ./main
     DEPENDS run
     WORKING_DIRECTORY ${CMAKE_PROJECT_DIR}
 )

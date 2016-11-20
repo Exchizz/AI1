@@ -25,6 +25,7 @@ public:
   std::vector<Point> points;
   int counter_debug = 0;
   void BredthFirst(Node * root);
+  void Dijkstra(Node * root_p);
   bool IsGoal(Node * node);
   void Insert(Node * child, int action);
   Node * GenerateNode(Node * child, int action);
