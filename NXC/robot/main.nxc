@@ -423,16 +423,13 @@ if (reverse && !busy) {
 
     // Perform the 180 degree turn - turns until linefollow sensors are on to of
     // line again.
-    turn_reverse = false;
-    while (!turn_reverse) {
-      SetSensorLight(IN_1); // Line follower
-      SetSensorLight(IN_2); // Line follower
-      SetSensorLight(IN_3); // Segment sensor
+    //turn_reverse = false;
+    //while (!turn_reverse) {
 
-      sensor_1 = Sensor(IN_1);
-      sensor_2 = Sensor(IN_2);
-      sensor_3 = Sensor(IN_3);
 
+      RotateMotorEx(OUT_AB, 50, 170, 100, true, true); // Adjust
+
+      /*
       RotateMotorEx(OUT_AB, 25, 10, 100, true, true);
 
       if (sensor_2 < THRESHOLD1) {
@@ -440,6 +437,7 @@ if (reverse && !busy) {
           turn_reverse = true;
         }
       }
+      */
     }
 
     // Line follow to next segment
@@ -454,7 +452,8 @@ if (reverse && !busy) {
         sensor_3 = Sensor(IN_3);
 
         if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1){
-          turn_complete = true;
+          intersection_reached = true;
+          reverse_complete = true;
           Wait(150);
           OnFwdSync(OUT_AB, 0, 0);
         }
@@ -473,11 +472,11 @@ if (reverse && !busy) {
           OnFwd(OUT_A, TURNSPEED);
         }
       }
-    intersection_reached = false;
+      intersection_reached = false;
     }
-  busy = false;
-  reverse_complete = true;
-  reverse = false;
+    busy = false;
+    reverse_complete = true;
+    reverse = false;
 }
 }
 
