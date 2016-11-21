@@ -1,15 +1,63 @@
+// Defines
+#define THRESHOLD1 35 // light sensor threshold
+#define THRESHOLD2 30
+
+#define P 1
+#define I 0.000025
+#define D 100
+
+// PID line follower parameters
+int actual_position;
+int error;
+int previous_error;
+
+int proportional;
+int integral;
+int derivative;
+int result;
+
+int right;
+int left;
+int speed = 50;
+
+int dt = 25;
+
+// Sensors
+int sensor_1; // Line follower
+int sensor_2; // Line follower
+int sensor_3; // Segment sensor
+
+// states
+int STATE = 1; // initialized as READ_COMMAND
+#define READ_COMMAND 1
+#define TURN_RIGHT 2
+#define TURN_LEFT 3
+#define REVERSE 4
+#define LINE_FOLLOW 5
+#define LINE_FOLLOW_SHORT 6
 
 
-int i = 0;
+// substates
+int substate;
+#define RIGHT 7
+#define LEFT 8
 
-int prev_count;
 
+int i = 0;        // iterator in plan
+int prev_count;   // prev count check integer (iterator)
+
+// READ_COMMAND variables, previous, current and next command in plan
 char prev;
 char curr;
 char next;
 
+// bools for line following
 bool line_follow_short = false;
+bool linefollow_12_reached = false;
+bool linefollow_3_reached = false;
 
+
+// the master plan
 string plan = "UURLDU";
 
 
@@ -44,7 +92,7 @@ task main(){
               break;
 
               case 'L':
-                STATE: TURN_LEFT;
+                STATE = TURN_LEFT;
               break;
 
               case 'R':
@@ -64,7 +112,7 @@ task main(){
               break;
 
               case 'L':
-                STATE: TURN_RIGHT;
+                STATE = TURN_RIGHT;
               break;
 
               case 'R':
@@ -84,7 +132,7 @@ task main(){
             break;
 
             case 'L':
-              STATE: LINE_FOLLOW;
+              STATE = LINE_FOLLOW;
             break;
 
             case 'R':
@@ -104,7 +152,7 @@ task main(){
             break;
 
             case 'L':
-              STATE: REVERSE;
+              STATE = REVERSE;
             break;
 
             case 'R':
@@ -126,7 +174,7 @@ task main(){
           }
           substate = RIGHT;
           STATE = LINE_FOLLOW_SHORT;
-        break;
+          break;
 
         case TURN_LEFT:
           if(line_follow_short){
@@ -136,34 +184,215 @@ task main(){
           }
           substate = LEFT;
           STATE = LINE_FOLLOW_SHORT;
-        break;
+          break;
 
         case REVERSE:
-        // backwards linefollow with sensor_3 as stopsensor. , rotates 180 degrees, sets line_follow_short = true;
-        break;
+        // backwards linefollow with sensor_1 & 2 as stopsensor. , rotates 180 degrees sets STATE = READ_COMMAND;
+
+          linefollow_3_reached = false;
+          previous_error = error;
+          while (!linefollow_3_reached) {
+
+            SetSensorLight(IN_1); // Line follower
+            SetSensorLight(IN_2); // Line follower
+            SetSensorLight(IN_3); // Segment sensor
+
+            sensor_1 = Sensor(IN_1);
+            sensor_2 = Sensor(IN_2);
+            sensor_3 = Sensor(IN_3);
+
+
+            error = sensor_1 - sensor_2;
+
+            proportional = P * error;
+            integral = I + error;
+            derivative = (error - previous_error) / dt;
+
+            result = proportional + I * dt * integral + D * derivative;
+
+            previous_error = error;
+
+            left = speed + result;                        // adjust left wheel
+            right = speed - result;                       // adjust right wheel
+
+              // Adjust the left and right motor value.
+             if (left >   100) left  =  100;
+             if (left <  -100) left  = -100;
+             if (right >  100) right =  100;
+             if (right < -100) right = -100;
+
+
+            if (left < 0 )                              // check direction (OnFwd statement can't have negative input)
+              {
+                 OnFwd(OUT_A,-left);  //OnFwd(OUT_A,-left);
+               }
+             else
+               {
+                 OnRev(OUT_A,left); //OnRev(OUT_A,left);
+               }
+
+
+             if (right < 0 )                              // check direction (OnFwd statement cann't have negative input)
+               {
+                 OnFwd(OUT_B,-right); //OnFwd(OUT_B,-right);
+               }
+              else
+                {
+                  OnRev(OUT_B,right); //OnRev(OUT_B,right);
+                }
+
+             if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1) {
+                  linefollow_3_reached = true;
+                  Wait(150);
+                  OnFwdSync(OUT_AB,0,0);
+                }
+             Wait(dt);
+          }
+          RotateMotorEx(OUT_AB, 40, 160, -100, true, true);
+          STATE = READ_COMMAND;
+
+
+          break;
 
         case LINE_FOLLOW:
         // PID controller for forward line follow, stops at sensor 1 & 2 < THRESHOLD1
 
-        STATE = READ_COMMAND;
-        break;
+          linefollow_12_reached = false;
+          previous_error = error;
+          while (!linefollow_12_reached) {
 
-        case LINE_FOLLOW_SHORT
+            SetSensorLight(IN_1); // Line follower
+            SetSensorLight(IN_2); // Line follower
+            SetSensorLight(IN_3); // Segment sensor
+
+            sensor_1 = Sensor(IN_1);
+            sensor_2 = Sensor(IN_2);
+            sensor_3 = Sensor(IN_3);
+
+            error = sensor_1 - sensor_2;
+
+            proportional = P * error;
+            integral = I + error;
+            derivative = (error - previous_error) / dt;
+
+            result = proportional + I * dt * integral + D * derivative;
+
+            previous_error = error;
+
+            left = speed - result;                        // adjust left wheel
+            right = speed + result;                       // adjust right wheel
+
+              // Adjust the left and right motor value.
+             if (left >   100) left  =  100;
+             if (left <  -100) left  = -100;
+             if (right >  100) right =  100;
+             if (right < -100) right = -100;
+
+
+            if (left < 0 )                              // check direction (OnFwd statement can't have negative input)
+              {
+                 OnFwd(OUT_A,-left);  //OnFwd(OUT_A,-left);
+               }
+             else
+               {
+                 OnRev(OUT_A,left); //OnRev(OUT_A,left);
+               }
+
+
+             if (right < 0 )                              // check direction (OnFwd statement cann't have negative input)
+               {
+                 OnFwd(OUT_B,-right); //OnFwd(OUT_B,-right);
+               }
+              else
+                {
+                  OnRev(OUT_B,right); //OnRev(OUT_B,right);
+                }
+
+             if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1) {
+                  linefollow_12_reached = true;
+                  Wait(150);
+                  OnFwdSync(OUT_AB,0,0);
+                }
+             Wait(dt);
+          }
+
+          STATE = READ_COMMAND;
+          break;
+
+        case LINE_FOLLOW_SHORT:
         // PID controller for forward line follow, stops at sensor 3 < THRESHOLD2
 
-        switch(substate){
-          case LEFT:
-            line_follow_short = true;
-            STATE = TURN_LEFT;
-          break;
+          linefollow_3_reached = false;
+          previous_error = error;
+          while (!linefollow_3_reached) {
 
-          case RIGHT:
-            line_follow_short = true;
-            STATE = TURN_RIGHT;
-          break;
-        }
+            SetSensorLight(IN_1); // Line follower
+            SetSensorLight(IN_2); // Line follower
+            SetSensorLight(IN_3); // Segment sensor
 
-        break;
-      }
+            sensor_1 = Sensor(IN_1);
+            sensor_2 = Sensor(IN_2);
+            sensor_3 = Sensor(IN_3);
+
+            error = sensor_1 - sensor_2;
+
+            proportional = P * error;
+            integral = I + error;
+            derivative = (error - previous_error) / dt;
+
+            result = proportional + I * dt * integral + D * derivative;
+
+            previous_error = error;
+
+            left = speed - result;                        // adjust left wheel
+            right = speed + result;                       // adjust right wheel
+
+              // Adjust the left and right motor value.
+             if (left >   100) left  =  100;
+             if (left <  -100) left  = -100;
+             if (right >  100) right =  100;
+             if (right < -100) right = -100;
+
+
+            if (left < 0 )                              // check direction (OnFwd statement can't have negative input)
+              {
+                 OnFwd(OUT_A,-left); // OnFwd(OUT_A,-left);
+               }
+             else
+               {
+                 OnRev(OUT_A,left); // OnRev(OUT_A,left);
+               }
+
+
+             if (right < 0 )                              // check direction (OnFwd statement can't have negative input)
+               {
+                 OnFwd(OUT_B,-right); //OnFwd(OUT_B,-right);
+               }
+              else
+                {
+                  OnRev(OUT_B,right); //OnRev(OUT_B,right);
+                }
+
+             if (sensor_3 < THRESHOLD2) {
+                  linefollow_3_reached = true;
+                  Wait(150);
+                  OnFwdSync(OUT_AB,0,0);
+                }
+             Wait(dt);
+          }
+
+            switch(substate){
+              case LEFT:
+                line_follow_short = true;
+                STATE = TURN_LEFT;
+                break;
+
+              case RIGHT:
+                line_follow_short = true;
+                STATE = TURN_RIGHT;
+                break;
+            }
+          break;
+          }
     }
 }
