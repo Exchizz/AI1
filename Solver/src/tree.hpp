@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <queue>
 #include <sstream>
+#include <functional>
 #ifndef TREE_H
 #define TREE_H
 
@@ -27,7 +28,11 @@ public:
   /* Solvers */
   void BredthFirst();
   void Dijkstra();
+  void AStar(int (Tree::*H)( int), Tree& a);
   /* Solvers end */
+
+  int h1(int);
+
   bool IsGoal(Node * node);
   void Insert(Node * child, int action);
   Node * GenerateNode(Node * child, int action);

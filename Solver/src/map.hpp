@@ -50,6 +50,7 @@ class Map {
                 bool IsPosFree(Point pos, std::vector<Point> &Jews);
                 bool MoveJew(std::vector<Point> &Jews, Point CurrentJewPos, Point NewJewPos);
                 int  FindDeadLocks();
+                bool DynamicDeadlock(Point PosJewm, int action, std::vector<Point> & jews);
 
                 std::string hashPos(Point pos){
                   std::stringstream xy;

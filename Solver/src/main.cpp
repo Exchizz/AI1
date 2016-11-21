@@ -13,6 +13,7 @@ int main(){
 	tree.GenerateTree(map);
 	tree.BredthFirst();
 //	tree.Dijkstra();
+	//tree.AStar(&Tree::h1,tree); // Start Astar using h1 as heuristics
 
 
 	/* DOTgraph graph *//*

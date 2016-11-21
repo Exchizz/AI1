@@ -22,19 +22,27 @@ int Map::FindDeadLocks(){
 			if(map[x][y] == 'X' or map[x][y] == 'G') continue;
 			// Up left
 			if(map[x][y-1] == 'X' and map[x-1][y] == 'X'){
+				deadlocks.insert({ hashPos(Point(x, y)),1});
 				deadlocks_list.push_back( std::make_pair(Point(x,y),0) );
+				std::cout << "deadlock position(): " << "x: " << x << " y: " << y << std::endl;
 			}
 			// Up right
 			if(map[x][y-1] == 'X' and map[x+1][y] == 'X'){
+				deadlocks.insert({ hashPos(Point(x, y)),1});
 				deadlocks_list.push_back( std::make_pair(Point(x,y),0) );
+				std::cout << "deadlock position(): " << "x: " << x << " y: " << y << std::endl;
 			}
 			// Down right
 			if(map[x][y+1] == 'X' and map[x+1][y] == 'X'){
+				deadlocks.insert({ hashPos(Point(x, y)),1});
 				deadlocks_list.push_back( std::make_pair(Point(x,y),0) );
+				std::cout << "deadlock position(): " << "x: " << x << " y: " << y << std::endl;
 			}
 			// Down left
 			if(map[x][y+1] == 'X' and map[x-1][y] == 'X'){
+				deadlocks.insert({ hashPos(Point(x, y)),1});
 				deadlocks_list.push_back( std::make_pair(Point(x,y),0) );
+				std::cout << "deadlock position(): " << "x: " << x << " y: " << y << std::endl;
 			}
 		}
 	}
@@ -253,10 +261,13 @@ bool Map::IsPosFree(Point pos, std::vector<Point> &Jews){
 
 
 bool Map::MoveJew(std::vector<Point> &Jews, Point CurrentJewPos, Point NewJewPos){
+
+	// NewJeWPos is in deadlock-list, don't move it
 	auto search = deadlocks.find(hashPos(NewJewPos));
 	if(search != deadlocks.end()) {
 			return false;
 	}
+	// Find the node we want to move
 	for(auto & jew: Jews){
 		if(jew == CurrentJewPos){
 				jew = NewJewPos;
@@ -265,11 +276,65 @@ bool Map::MoveJew(std::vector<Point> &Jews, Point CurrentJewPos, Point NewJewPos
 	return true;
 }
 
+
+bool Map::DynamicDeadlock(Point PosJew, int action, std::vector<Point> & jews){
+	switch(action){
+		case RIGHT:
+			if(map[PosJew.x+2][PosJew.y] == 'X' || IsPosJew(jews, Point(PosJew.x+2, PosJew.y)) ){ // Check outer right
+				if(map[PosJew.x+1][PosJew.y+1] == 'X' ||  IsPosJew(jews, Point(PosJew.x+1, PosJew.y +1 )) ){ // Check upper
+					if(map[PosJew.x+1][PosJew.y-1] == 'X' ||  IsPosJew(jews, Point(PosJew.x+1, PosJew.y-1)) ){ // Check lower
+						//std::cout << "Dynamic deadlock found right" << std::endl;
+						return true;
+					}
+				}
+			}
+		break;
+
+		case LEFT:
+			if(map[PosJew.x-2][PosJew.y] == 'X' || IsPosJew(jews, Point(PosJew.x-2, PosJew.y))){ // Check outer right
+				if(map[PosJew.x-1][PosJew.y+1] == 'X' || IsPosJew(jews, Point(PosJew.x-1, PosJew.y+2)) ){ // Check upper
+					if(map[PosJew.x-1][PosJew.y-1] == 'X' || IsPosJew(jews, Point(PosJew.x-1, PosJew.y-1))){ // Check lower
+						//std::cout << "Dynamic deadlock found left" << std::endl;
+						return true;
+					}
+				}
+			}
+		break;
+
+
+		case UP:
+			if(map[PosJew.x][PosJew.y-2] == 'X' ||  IsPosJew(jews, Point(PosJew.x, PosJew.y-2))){ // Check upper
+				if(map[PosJew.x-1][PosJew.y-1] == 'X' || IsPosJew(jews, Point(PosJew.x-1, PosJew.y-1))){ // Check left
+					if(map[PosJew.x+1][PosJew.y-1] == 'X' || IsPosJew(jews, Point(PosJew.x+1, PosJew.y-1))){ // Check right
+						//std::cout << "Dynamic deadlock found up" << std::endl;
+						return true;
+					}
+				}
+			}
+		break;
+
+
+		case DOWN:
+			if(map[PosJew.x][PosJew.y+2] == 'X' || IsPosJew(jews, Point(PosJew.x, PosJew.y+2))){ // Check upper
+				if(map[PosJew.x-1][PosJew.y+1] == 'X' || IsPosJew(jews, Point(PosJew.x-1, PosJew.y+1))){ // Check left
+					if(map[PosJew.x+1][PosJew.y+1] == 'X' || IsPosJew(jews, Point(PosJew.x+1, PosJew.y+1))){ // Check right
+						//std::cout << "Dynamic deadlock found down" << std::endl;
+						return true;
+					}
+				}
+			}
+		break;
+
+	}
+
+	return false;
+}
+
 bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 	if(IsPosJew(Jews, pos)){
 		switch(action){
 			case UP:
-				if(map[pos.x][pos.y-1] == '.' && !IsPosJew(Jews, Point(pos.x, pos.y-1))){
+				if(map[pos.x][pos.y-1] == '.' && !IsPosJew(Jews, Point(pos.x, pos.y-1)) && !DynamicDeadlock(pos, action, Jews)){
 					auto NewJewPos = Point(pos.x, pos.y-1);
 					auto CurrentJewPos = Point(pos.x, pos.y);
 					return MoveJew(Jews, CurrentJewPos, NewJewPos);
@@ -278,7 +343,7 @@ bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 				}
 			break;
 			case DOWN:
-				if(map[pos.x][pos.y+1] == '.' && !IsPosJew(Jews, Point(pos.x, pos.y+1))){
+				if(map[pos.x][pos.y+1] == '.' && !IsPosJew(Jews, Point(pos.x, pos.y+1)) && !DynamicDeadlock(pos, action, Jews)){
 					auto NewJewPos = Point(pos.x, pos.y+1);
 					auto CurrentJewPos = Point(pos.x, pos.y);
 					return MoveJew(Jews, CurrentJewPos, NewJewPos);
@@ -288,7 +353,7 @@ bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 			break;
 
 			case LEFT:
-				if(map[pos.x -1][pos.y] == '.'&& !IsPosJew(Jews, Point(pos.x-1, pos.y))){
+				if(map[pos.x -1][pos.y] == '.'&& !IsPosJew(Jews, Point(pos.x-1, pos.y)) && !DynamicDeadlock(pos, action, Jews)){
 					auto NewJewPos = Point(pos.x - 1, pos.y);
 					auto CurrentJewPos = Point(pos.x, pos.y);
 					return MoveJew(Jews, CurrentJewPos, NewJewPos);
@@ -298,7 +363,7 @@ bool Map::TryToMove(Point pos, std::vector<Point> & Jews, int action){
 				return true;
 			break;
 			case RIGHT:
-				if(map[pos.x+1][pos.y] == '.' && !IsPosJew(Jews, Point(pos.x+1, pos.y))){
+				if(map[pos.x+1][pos.y] == '.' && !IsPosJew(Jews, Point(pos.x+1, pos.y)) && !DynamicDeadlock(pos, action, Jews)){
 					auto NewJewPos = Point(pos.x+1, pos.y);
 					auto CurrentJewPos = Point(pos.x, pos.y);
 					return MoveJew(Jews, CurrentJewPos, NewJewPos);
