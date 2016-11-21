@@ -58,8 +58,8 @@ bool linefollow_3_reached = false;
 
 
 // the master plan
-string plan = "UURLDU";
-
+string plan = "LLUU";
+int line_follow_count = 0;
 
 task main(){
 
@@ -74,12 +74,17 @@ task main(){
 
     switch(STATE){
       case READ_COMMAND:
+
         prev_count = (i-1 > 0 ? i -1 : 0);
 
         prev = plan[prev_count];
         curr = plan[i];
         next = plan[i+1];
 
+        i++;
+
+        //TextOut(0,LCD_LINE1,NumToStr(line_follow_count));
+        //Wait(100);
         switch (prev) {
           case 'U':
             switch (curr) {
@@ -163,7 +168,7 @@ task main(){
           break;
         }
 
-        i++;
+
         break;
 
         case TURN_RIGHT:
@@ -172,8 +177,10 @@ task main(){
             line_follow_short = false;
             STATE = LINE_FOLLOW;
           }
+          else{
           substate = RIGHT;
           STATE = LINE_FOLLOW_SHORT;
+        }
           break;
 
         case TURN_LEFT:
@@ -182,8 +189,10 @@ task main(){
             line_follow_short = false;
             STATE = LINE_FOLLOW;
           }
+          else{
           substate = LEFT;
           STATE = LINE_FOLLOW_SHORT;
+        }
           break;
 
         case REVERSE:
@@ -256,6 +265,7 @@ task main(){
 
         case LINE_FOLLOW:
         // PID controller for forward line follow, stops at sensor 1 & 2 < THRESHOLD1
+          line_follow_count++;
 
           linefollow_12_reached = false;
           previous_error = error;
@@ -291,28 +301,29 @@ task main(){
 
             if (left < 0 )                              // check direction (OnFwd statement can't have negative input)
               {
-                 OnFwd(OUT_A,-left);  //OnFwd(OUT_A,-left);
-               }
-             else
-               {
-                 OnRev(OUT_A,left); //OnRev(OUT_A,left);
-               }
+               OnFwd(OUT_B,left);  //OnFwd(OUT_A,-left);
+              }
+            else
+              {
+               OnRev(OUT_B,-left);   //OnRev(OUT_A,left);
+              }
 
 
              if (right < 0 )                              // check direction (OnFwd statement cann't have negative input)
-               {
-                 OnFwd(OUT_B,-right); //OnFwd(OUT_B,-right);
-               }
-              else
-                {
-                  OnRev(OUT_B,right); //OnRev(OUT_B,right);
-                }
+              {
+               OnFwd(OUT_A,right);   //OnFwd(OUT_B,-right);
+              }
+            else
+              {
+                OnRev(OUT_A,-right);   //OnRev(OUT_B,right);
+              }
 
              if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1) {
-                  linefollow_12_reached = true;
-                  Wait(150);
-                  OnFwdSync(OUT_AB,0,0);
-                }
+               TextOut(0,LCD_LINE1,NumToStr(line_follow_count));
+               linefollow_12_reached = true;
+               Wait(150);
+               OnFwdSync(OUT_AB,0,0);
+              }
              Wait(dt);
           }
 
@@ -354,24 +365,24 @@ task main(){
              if (right < -100) right = -100;
 
 
-            if (left < 0 )                              // check direction (OnFwd statement can't have negative input)
-              {
-                 OnFwd(OUT_A,-left); // OnFwd(OUT_A,-left);
+             if (left < 0 )                              // check direction (OnFwd statement can't have negative input)
+               {
+                OnFwd(OUT_B,left);  //OnFwd(OUT_A,-left);
                }
              else
                {
-                 OnRev(OUT_A,left); // OnRev(OUT_A,left);
+                OnRev(OUT_B,-left);   //OnRev(OUT_A,left);
                }
 
 
-             if (right < 0 )                              // check direction (OnFwd statement can't have negative input)
+              if (right < 0 )                              // check direction (OnFwd statement cann't have negative input)
                {
-                 OnFwd(OUT_B,-right); //OnFwd(OUT_B,-right);
+                OnFwd(OUT_A,right);   //OnFwd(OUT_B,-right);
                }
-              else
-                {
-                  OnRev(OUT_B,right); //OnRev(OUT_B,right);
-                }
+             else
+               {
+                 OnRev(OUT_A,-right);   //OnRev(OUT_B,right);
+               }
 
              if (sensor_3 < THRESHOLD2) {
                   linefollow_3_reached = true;
