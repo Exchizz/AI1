@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <sstream>
 #include <algorithm>
+#include "node.hpp"
 
 
 #define UP 0
@@ -30,7 +31,10 @@ class Map {
                 RawMap GetMap();
                 std::vector<Point> Find(char);
                 char operator[](Point);
+                void SetJew(Point Pos);
                 void SetMan(Point PosMan);
+                void SetGoal(Point pos);
+                void SetJewOnGoal(Point pos);
                 std::unordered_map<std::string, int> deadlocks;
 
                 Map* Clone();

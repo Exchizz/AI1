@@ -29,6 +29,10 @@ public:
   std::vector<Point> PosGoals;
   std::vector<Point> points;
   int counter_debug = 0;
+  void SetState(Node * node);
+
+
+  std::list<Node*> SolutionList;
   /* Solvers */
   void BredthFirst();
   void Dijkstra();

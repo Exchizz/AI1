@@ -1,6 +1,8 @@
 #include "map.hpp"
 
 
+
+
 void Map::Clean(std::string ToRemove){
 	for(unsigned int x = 0; x < cols; x++){
 		for(unsigned int y = 0; y < rows; y++){
@@ -113,7 +115,7 @@ int Map::FindDeadLocks(){
 			}
 		}
 		std::cout << "deadlocks: " << deadlocks.size() << std::endl;
-return 0;
+		return 0;
 }
 
 std::vector<Point> Map::Find(char needle){
@@ -134,9 +136,21 @@ char Map::operator[](Point man){
 
 
 void Map::SetMan(Point PosMan){
-	auto OldPose = Find('M')[0];
-	map[OldPose.x][OldPose.y] = '.';
+	//auto OldPose = Find('M')[0];
+	//map[OldPose.x][OldPose.y] = '.';
 	map[PosMan.x][PosMan.y] = 'M';
+}
+
+void Map::SetJewOnGoal(Point pos){
+	map[pos.x][pos.y] = '@';
+}
+
+void Map::SetGoal(Point pos){
+	map[pos.x][pos.y] = 'G';
+}
+
+void Map::SetJew(Point Pos){
+	map[Pos.x][Pos.y] = 'J';
 }
 
 void Map::LoadMap(std::string filename){
@@ -193,6 +207,7 @@ bool Map::inMap(Point position){
 	return true;
 }
 
+
 void Map::PrintMap(){
 	std::cout << "   ";
 	for(unsigned int x = 0; x < cols; x++){
@@ -208,6 +223,7 @@ void Map::PrintMap(){
 					std::cout <<  " " << KYEL << map[x][y] << RST << " ";
 				break;
 				case 'J':
+				case '@':
 					std::cout <<  " " << KGRN << map[x][y] << RST << " ";
 				break;
 				case 'G':
