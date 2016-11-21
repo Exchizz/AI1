@@ -4,6 +4,11 @@
 #include <unordered_map>
 #include <queue>
 #include <sstream>
+#include <iostream>
+#include <list>
+#include <cmath>
+
+
 #ifndef TREE_H
 #define TREE_H
 
@@ -14,7 +19,7 @@ private:
 public:
   void GenerateTree(Map &map);
   void Insert(Point , Point);
-  //Map * ConstructMap();
+  int backtrackSteps = 0;
   std::vector<Point> ExploreMap(Node *node);
   void _ExploreMap(Node *node);
   unsigned int Nodes();
@@ -27,7 +32,12 @@ public:
   /* Solvers */
   void BredthFirst();
   void Dijkstra();
+  void AStar(int (Tree::*H_p)(std::vector<Point>&), Tree& obj);
   /* Solvers end */
+
+  int h1(std::vector<Point>& PosJews);
+  Node* BackTrackSolution(Node * node);
+
   bool IsGoal(Node * node);
   void Insert(Node * child, int action);
   Node * GenerateNode(Node * child, int action);
