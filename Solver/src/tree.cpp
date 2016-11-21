@@ -180,14 +180,14 @@ bool Tree::IsGoal(Node * node){
 
 
 int MinDist(Point jew, std::vector<Point> &goals){
-  int smallest = std::numeric_limits<int>::max();
+  unsigned int smallest = std::numeric_limits<unsigned int>::max();
+
   for(auto goal : goals){
-    int temp = std::sqrt( std::pow(goal.x - jew.x,2) + std::pow((goal.y - jew.y),2));
+    unsigned int temp = std::sqrt( std::pow((signed)(goal.x - jew.x),2) + std::pow((signed)(goal.y - jew.y),2));
     if(temp < smallest){
       smallest = temp;
     }
   }
-
   return smallest;
 }
 
@@ -242,8 +242,8 @@ void Tree::AStar(int (Tree::*H_p)(std::vector<Point>&), Tree& obj){
     Insert(current, UP);
     Insert(current, DOWN);
     auto children = current->children;
-
     for(auto &child: children){
+      //std::cout << (obj.*H_p)(child->PosJew) << std::endl;
       int NewDistance = current->distance + 1 + (obj.*H_p)(child->PosJew);
       if(NewDistance < child->distance){
         child->parent = current;

@@ -281,8 +281,8 @@ bool Map::DynamicDeadlock(Point PosJew, int action, std::vector<Point> & jews){
 	switch(action){
 		case RIGHT:
 			if(map[PosJew.x+2][PosJew.y] == 'X' || IsPosJew(jews, Point(PosJew.x+2, PosJew.y)) ){ // Check outer right
-				if(map[PosJew.x+1][PosJew.y+1] == 'X' ||  IsPosJew(jews, Point(PosJew.x+1, PosJew.y +1 )) ){ // Check lower
-					if(map[PosJew.x+1][PosJew.y-1] == 'X' ||  IsPosJew(jews, Point(PosJew.x+1, PosJew.y-1)) ){ // Check upper
+				if(map[PosJew.x+1][PosJew.y+1] == 'X' ){//||  IsPosJew(jews, Point(PosJew.x+1, PosJew.y +1 )) ){ // Check lower
+					if(map[PosJew.x+1][PosJew.y-1] == 'X' ){//||  IsPosJew(jews, Point(PosJew.x+1, PosJew.y-1)) ){ // Check upper
 						//std::cout << "Dynamic deadlock found right" << std::endl;
 						return true;
 					}
@@ -292,8 +292,8 @@ bool Map::DynamicDeadlock(Point PosJew, int action, std::vector<Point> & jews){
 
 		case LEFT:
 			if(map[PosJew.x-2][PosJew.y] == 'X' || IsPosJew(jews, Point(PosJew.x-2, PosJew.y))){ // Check outer right
-				if(map[PosJew.x-1][PosJew.y+1] == 'X' || IsPosJew(jews, Point(PosJew.x-1, PosJew.y+1)) ){ // Check upper
-					if(map[PosJew.x-1][PosJew.y-1] == 'X' || IsPosJew(jews, Point(PosJew.x-1, PosJew.y-1))){ // Check lower
+				if(map[PosJew.x-1][PosJew.y+1] == 'X'){ // || IsPosJew(jews, Point(PosJew.x-1, PosJew.y+1)) ){ // Check upper
+					if(map[PosJew.x-1][PosJew.y-1] == 'X'){ // || IsPosJew(jews, Point(PosJew.x-1, PosJew.y-1))){ // Check lower
 						//std::cout << "Dynamic deadlock found left" << std::endl;
 						return true;
 					}
@@ -304,8 +304,8 @@ bool Map::DynamicDeadlock(Point PosJew, int action, std::vector<Point> & jews){
 
 		case UP:
 			if(map[PosJew.x][PosJew.y-2] == 'X' ||  IsPosJew(jews, Point(PosJew.x, PosJew.y-2))){ // Check upper
-				if(map[PosJew.x-1][PosJew.y-1] == 'X' || IsPosJew(jews, Point(PosJew.x-1, PosJew.y-1))){ // Check left
-					if(map[PosJew.x+1][PosJew.y-1] == 'X' || IsPosJew(jews, Point(PosJew.x+1, PosJew.y-1))){ // Check right
+				if(map[PosJew.x-1][PosJew.y-1] == 'X' ){ //|| IsPosJew(jews, Point(PosJew.x-1, PosJew.y-1))){ // Check left
+					if(map[PosJew.x+1][PosJew.y-1] == 'X' ){ //|| IsPosJew(jews, Point(PosJew.x+1, PosJew.y-1))){ // Check right
 						//std::cout << "Dynamic deadlock found up" << std::endl;
 						return true;
 					}
@@ -316,8 +316,8 @@ bool Map::DynamicDeadlock(Point PosJew, int action, std::vector<Point> & jews){
 
 		case DOWN:
 			if(map[PosJew.x][PosJew.y+2] == 'X' || IsPosJew(jews, Point(PosJew.x, PosJew.y+2))){ // Check upper
-				if(map[PosJew.x-1][PosJew.y+1] == 'X' || IsPosJew(jews, Point(PosJew.x-1, PosJew.y+1))){ // Check left
-					if(map[PosJew.x+1][PosJew.y+1] == 'X' || IsPosJew(jews, Point(PosJew.x+1, PosJew.y+1))){ // Check right
+				if(map[PosJew.x-1][PosJew.y+1] == 'X' ){ //|| IsPosJew(jews, Point(PosJew.x-1, PosJew.y+1))){ // Check left
+					if(map[PosJew.x+1][PosJew.y+1] == 'X' ){ //|| IsPosJew(jews, Point(PosJew.x+1, PosJew.y+1))){ // Check right
 						//std::cout << "Dynamic deadlock found down" << std::endl;
 						return true;
 					}
