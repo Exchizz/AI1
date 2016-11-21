@@ -190,6 +190,29 @@ int MinDist(Point jew, std::vector<Point> &goals){
   return smallest;
 }
 
+void Tree::SetState(Node * node){
+    for(auto jew : node->PosJew){
+      map.SetJew(jew);
+    }
+
+  for(auto goal : PosGoals){
+    int isGood = false;
+    for(auto jew : node->PosJew){
+      if(goal == jew){
+        isGood = true;
+      }
+    }
+    if(isGood){
+      map.SetJewOnGoal(goal);
+    } else
+      map.SetGoal(goal);
+  }
+
+  map.SetMan(node->PosMan);
+
+}
+
+
 int Tree::h1(std::vector<Point>& PosJews){
     int sum = 0 ;
     for(auto jew : PosJews){
@@ -211,10 +234,14 @@ Node* Tree::BackTrackSolution(Node * node){
     if(node->PosMan.y == LastNode->PosMan.y-1) out = 'U';
     if(node->PosMan.y == LastNode->PosMan.y+1) out = 'D';
 
+    SolutionList.push_back(node);
+
     out = (JewsDiffer(node, LastNode) ? tolower(out) : toupper(out) );
 
+    if(isupper(out)){
+      backtrackPushes++;
+    }
     backtrackSteps++;
-
     std::cout << out;
     return node;
 }
@@ -319,9 +346,6 @@ void Tree::BredthFirst(){
       std::cout << "Reached goal" << std::endl;
       BackTrackSolution(current);
       std::cout << std::endl;
-      std::cout << "Backtrack done, steps: " << backtrackSteps << std::endl;
-
-
       return;
       // BackTrack(curent)
     }

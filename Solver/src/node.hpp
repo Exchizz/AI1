@@ -1,9 +1,11 @@
+#ifndef NODE_H
+#define NODE_H
+
 #include "point.hpp"
 #include "map.hpp"
 #include <limits>
 #include <vector>
-#ifndef NODE_H
-#define NODE_H
+
 
 class Node {
 public:

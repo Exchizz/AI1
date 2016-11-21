@@ -20,6 +20,7 @@ public:
   void GenerateTree(Map &map);
   void Insert(Point , Point);
   int backtrackSteps = 0;
+  int backtrackPushes = 0;
   std::vector<Point> ExploreMap(Node *node);
   void _ExploreMap(Node *node);
   unsigned int Nodes();
@@ -29,6 +30,10 @@ public:
   std::vector<Point> PosGoals;
   std::vector<Point> points;
   int counter_debug = 0;
+  void SetState(Node * node);
+
+
+  std::list<Node*> SolutionList;
   /* Solvers */
   void BredthFirst();
   void Dijkstra();
