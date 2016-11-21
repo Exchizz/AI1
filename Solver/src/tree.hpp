@@ -15,6 +15,7 @@ private:
 public:
   void GenerateTree(Map &map);
   void Insert(Point , Point);
+  int backtrackSteps = 0;
   //Map * ConstructMap();
   std::vector<Point> ExploreMap(Node *node);
   void _ExploreMap(Node *node);
@@ -28,10 +29,11 @@ public:
   /* Solvers */
   void BredthFirst();
   void Dijkstra();
-  void AStar(int (Tree::*H)( int), Tree& a);
+  void AStar(int (Tree::*H_p)(std::vector<Point>&), Tree& obj);
   /* Solvers end */
 
-  int h1(int);
+  int h1(std::vector<Point>& PosJews);
+  Point BackTrackSolution(Node * node);
 
   bool IsGoal(Node * node);
   void Insert(Node * child, int action);

@@ -3,7 +3,8 @@
 #include <cassert>
 #include <stack>
 #include <algorithm>
-#include<list>
+#include <list>
+#include <cmath>
 
 
 
@@ -178,11 +179,27 @@ bool Tree::IsGoal(Node * node){
 }
 
 
+int MinDist(Point jew, std::vector<Point> &goals){
+  int smallest = std::numeric_limits<int>::max();
+  for(auto goal : goals){
+    int temp = std::sqrt( std::pow(goal.x - jew.x,2) + std::pow((goal.y - jew.y),2));
+    if(temp < smallest){
+      smallest = temp;
+    }
+  }
 
-int Tree::h1(int data){
-  return data;
+  return smallest;
 }
-Point BackTrackSolution(Node * node){
+
+int Tree::h1(std::vector<Point>& PosJews){
+    int sum = 0 ;
+    for(auto jew : PosJews){
+      sum += MinDist(jew, PosGoals);
+    }
+  return sum;
+}
+
+Point Tree::BackTrackSolution(Node * node){
     if(node->parent == nullptr){
       return node->PosMan;
     }
@@ -194,16 +211,13 @@ Point BackTrackSolution(Node * node){
     if(node->PosMan.y == ManPosOld.y-1) out = 'U';
     if(node->PosMan.y == ManPosOld.y+1) out = 'D';
 
+    backtrackSteps++;
+
     std::cout << out;
     return node->PosMan;
 }
-
-
-typedef int (funk)( int);
-void Tree::AStar(int (Tree::*H_p)( int), Tree& obj){
-
-  //funk H = obj.*H_p;
-  std::cout << "H: " << (obj.*H_p)(1337) << std::endl;
+void Tree::AStar(int (Tree::*H_p)(std::vector<Point>&), Tree& obj){
+  //std::cout << "H: " << (obj.*H_p)(1337) << std::endl;
   std::cout << "-------Using A* search -------" << std::endl;
   std::priority_queue<Node*,std::vector<Node*>,LessThanByDistance> OpenQueue;
   std::list<Node*> ClosedQueue;
@@ -213,15 +227,13 @@ void Tree::AStar(int (Tree::*H_p)( int), Tree& obj){
     auto current = OpenQueue.top();
     OpenQueue.pop();
 
-
     ClosedQueue.push_back(current);
     if(IsGoal(current)){
       std::cout << "Closed queue size: " << ClosedQueue.size() << std::endl;
       std::cout << "Reached goal" << std::endl;
       BackTrackSolution(current);
       std::cout << std::endl;
-      std::cout << "Backtrack done" << std::endl;
-
+      std::cout << "Backtrack done, steps: " << backtrackSteps << std::endl;
 
       return;
     }
@@ -231,26 +243,8 @@ void Tree::AStar(int (Tree::*H_p)( int), Tree& obj){
     Insert(current, DOWN);
     auto children = current->children;
 
-    int NewDistance = current->distance + 1;
     for(auto &child: children){
-      /*
-      std::cout << "current: " << child->distance << " new: " << NewDistance << std::endl;
-
-      if(child in OpenList){
-        if(OpenList[child] < NewDistance){
-          continue;
-        }
-      }
-
-
-
-      if(child in ClosedList){
-        if(ClosedList[child] < NewDistance){
-          continue;
-        }
-      }
-      */
-
+      int NewDistance = current->distance + 1 + (obj.*H_p)(child->PosJew);
       if(NewDistance < child->distance){
         child->parent = current;
         child->distance = NewDistance;
@@ -261,9 +255,6 @@ void Tree::AStar(int (Tree::*H_p)( int), Tree& obj){
   std::cout << "Closed queue size: " << ClosedQueue.size() << std::endl;
   std::cout << "Reached bottom of while loop, no solution found" << std::endl;
 }
-
-
-
 
 void Tree::Dijkstra(){
   std::cout << "-------Using dijkstra search -------" << std::endl;
@@ -284,6 +275,7 @@ void Tree::Dijkstra(){
       BackTrackSolution(current);
       std::cout << std::endl;
       std::cout << "Backtrack done" << std::endl;
+      std::cout << "Backtrack done, steps: " << backtrackSteps << std::endl;
 
       //assert(ClosedQueue.size() == 248064);
 
@@ -298,24 +290,6 @@ void Tree::Dijkstra(){
 
     int NewDistance = current->distance + 1;
     for(auto &child: children){
-      /*
-      std::cout << "current: " << child->distance << " new: " << NewDistance << std::endl;
-
-      if(child in OpenList){
-        if(OpenList[child] < NewDistance){
-          continue;
-        }
-      }
-
-
-
-      if(child in ClosedList){
-        if(ClosedList[child] < NewDistance){
-          continue;
-        }
-      }
-      */
-
       if(NewDistance < child->distance){
         child->parent = current;
         child->distance = NewDistance;
@@ -326,7 +300,6 @@ void Tree::Dijkstra(){
   std::cout << "Closed queue size: " << ClosedQueue.size() << std::endl;
   std::cout << "Reached bottom of while loop, no solution found" << std::endl;
 }
-
 
 void Tree::BredthFirst(){
   std::cout << "-------Using breadthFirst search -------" << std::endl;
@@ -344,6 +317,8 @@ void Tree::BredthFirst(){
       std::cout << "Reached goal" << std::endl;
       BackTrackSolution(current);
       std::cout << std::endl;
+      std::cout << "Backtrack done, steps: " << backtrackSteps << std::endl;
+
 
       return;
       // BackTrack(curent)
@@ -370,8 +345,6 @@ void Tree::BredthFirst(){
   std::cout << "Closed queue size: " << ClosedQueue.size() << std::endl;
   std::cout << "Reached bottom of while loop, no solution found" << std::endl;
 }
-
-
 
 void Tree::_ExploreMap(Node *node){
   if(node->discovered){
