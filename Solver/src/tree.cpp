@@ -1,10 +1,5 @@
 #include "tree.hpp"
-#include <iostream>
-#include <cassert>
-#include <stack>
-#include <algorithm>
-#include <list>
-#include <cmath>
+
 
 
 
@@ -34,11 +29,6 @@ void Tree::GenerateTree(Map &map_p){
   Insert(root, LEFT);
   Insert(root, RIGHT);
 
-  // NOTE recursively explore the map Depth first method
-  //auto ManPositions = ExploreMap(root);
-
-  //BredthFirst(root);
-  //Dijkstra(root);
   return;
 }
 
@@ -178,7 +168,16 @@ bool Tree::IsGoal(Node * node){
   return false;
 }
 
+bool JewsDiffer(Node * node1, Node * node2){
+  unsigned int matches = 0;
+  for(auto jewx : node1->PosJew){
+    for(auto jewy : node2->PosJew){
+      matches += (jewx == jewy);
+    }
+  }
 
+  return (matches == node1->PosJew.size());
+}
 int MinDist(Point jew, std::vector<Point> &goals){
   unsigned int smallest = std::numeric_limits<unsigned int>::max();
 
@@ -199,22 +198,25 @@ int Tree::h1(std::vector<Point>& PosJews){
   return sum;
 }
 
-Point Tree::BackTrackSolution(Node * node){
+Node* Tree::BackTrackSolution(Node * node){
     if(node->parent == nullptr){
-      return node->PosMan;
+      return node;
     }
-    auto ManPosOld = BackTrackSolution(node->parent);
+    auto LastNode = BackTrackSolution(node->parent);
+
 
     char out;
-    if(node->PosMan.x == ManPosOld.x+1) out = 'R';
-    if(node->PosMan.x == ManPosOld.x-1) out = 'L';
-    if(node->PosMan.y == ManPosOld.y-1) out = 'U';
-    if(node->PosMan.y == ManPosOld.y+1) out = 'D';
+    if(node->PosMan.x == LastNode->PosMan.x+1) out = 'R';
+    if(node->PosMan.x == LastNode->PosMan.x-1) out = 'L';
+    if(node->PosMan.y == LastNode->PosMan.y-1) out = 'U';
+    if(node->PosMan.y == LastNode->PosMan.y+1) out = 'D';
+
+    out = (JewsDiffer(node, LastNode) ? tolower(out) : toupper(out) );
 
     backtrackSteps++;
 
     std::cout << out;
-    return node->PosMan;
+    return node;
 }
 void Tree::AStar(int (Tree::*H_p)(std::vector<Point>&), Tree& obj){
   //std::cout << "H: " << (obj.*H_p)(1337) << std::endl;
