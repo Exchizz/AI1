@@ -4,12 +4,18 @@
 #include <chrono>
 #include <thread>
 
-int main(){
+int main(int argc,  char** argv){
 
 	auto start = std::chrono::steady_clock::now();
-
+	std::string filename;
+	if(argc > 1 ){
+		filename = argv[1];
+	} else {
+		std::cout << "Run example: \n./main <map filename>.txt" << std::endl;
+		exit(1);
+	}
 	Map map;
-	map.LoadMap("map.txt");
+	map.LoadMap(filename);
 	map.PrintMap();
 
 	map.FindDeadLocks();
@@ -22,7 +28,7 @@ int main(){
 
 	auto finish = std::chrono::steady_clock::now();
 	double elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double> >(finish - start).count();
-
+/*
 	for(auto node : tree.SolutionList){
 		std::cout << "\033[2J\033[1;1H"; // Clear terminal
 		tree.SetState(node);
@@ -30,9 +36,9 @@ int main(){
 		tree.map.Clean("MJG");
 	  std::this_thread::sleep_for (std::chrono::milliseconds(150));
 	}
-
-
+*/
 	std::cout << "Time it took to solve map: " <<  floor(elapsed_seconds/60) << " min " << std::fmod(elapsed_seconds,60) << " secs" << std::endl;
+	std::cout << "Steps: " << tree.backtrackSteps << " Pushes: " << tree.backtrackPushes << std::endl;
 
 
 

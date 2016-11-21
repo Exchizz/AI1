@@ -238,8 +238,10 @@ Node* Tree::BackTrackSolution(Node * node){
 
     out = (JewsDiffer(node, LastNode) ? tolower(out) : toupper(out) );
 
+    if(isupper(out)){
+      backtrackPushes++;
+    }
     backtrackSteps++;
-
     std::cout << out;
     return node;
 }
@@ -344,9 +346,6 @@ void Tree::BredthFirst(){
       std::cout << "Reached goal" << std::endl;
       BackTrackSolution(current);
       std::cout << std::endl;
-      std::cout << "Backtrack done, steps: " << backtrackSteps << std::endl;
-
-
       return;
       // BackTrack(curent)
     }

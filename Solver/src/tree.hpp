@@ -20,6 +20,7 @@ public:
   void GenerateTree(Map &map);
   void Insert(Point , Point);
   int backtrackSteps = 0;
+  int backtrackPushes = 0;
   std::vector<Point> ExploreMap(Node *node);
   void _ExploreMap(Node *node);
   unsigned int Nodes();
