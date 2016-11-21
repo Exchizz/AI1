@@ -1,12 +1,12 @@
 
 
 // Defines
-#define THRESHOLD1 45 // light sensor threshold
-#define THRESHOLD2 35
+#define THRESHOLD1 35 // light sensor threshold
+#define THRESHOLD2 30
 
-
+#define TURNSPEED_SMALL 15
 #define TURNSPEED 35
-#define SPEED 50
+#define SPEED 45
 
 // Sensors
 int sensor_1; // Line follower
@@ -46,10 +46,10 @@ bool reverse_complete = false;
 sub follow_line(char lastmove, char current, bool busy){
 
 // Default case, first element in solution array
-  if(lastmove == 'P'){
-    lastmove = current;
-  line_follow = true;
-  }
+  //if(lastmove == 'P'){
+  //  lastmove = current;
+  //line_follow = true;
+  //}
 
   switch(current){
     case 'U':
@@ -81,7 +81,6 @@ sub follow_line(char lastmove, char current, bool busy){
     case 'R':
         if(lastmove == 'R'){
           line_follow = true;
-
           }
         else
           line_follow = false;
@@ -96,7 +95,7 @@ sub follow_line(char lastmove, char current, bool busy){
 if(line_follow && busy == false){
   intersection_reached = false;
 
-  	while(intersection_reached == false){
+  	while(!intersection_reached){
 
       SetSensorLight(IN_1); // Line follower
       SetSensorLight(IN_2); // Line follower
@@ -110,6 +109,7 @@ if(line_follow && busy == false){
 
         if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1){
           intersection_reached = true;
+          line_follow = false;
           Wait(150);
           OnFwdSync(OUT_AB, 0, 0);
         }
@@ -120,13 +120,13 @@ if(line_follow && busy == false){
   		  }
 
         else if(sensor_1 > THRESHOLD1){
-          OnFwd(OUT_A, 0);
+          OnFwd(OUT_A, TURNSPEED_SMALL);
           OnFwd(OUT_B, TURNSPEED);
 
         }
 
         else if(sensor_2 > THRESHOLD1){
-        	OnFwd(OUT_B, 0);
+        	OnFwd(OUT_B, TURNSPEED_SMALL);
         	OnFwd(OUT_A, TURNSPEED);
 
         }
@@ -230,96 +230,94 @@ sub turn_behaviour(char lastmove, char current, bool busy){
       }
 
       else if(sensor_1 > THRESHOLD1){
-        OnFwd(OUT_A, 0);
+        OnFwd(OUT_A, TURNSPEED_SMALL);
         OnFwd(OUT_B, TURNSPEED);
       }
       else if(sensor_2 > THRESHOLD1){
-        OnFwd(OUT_B, 0);
+        OnFwd(OUT_B, TURNSPEED_SMALL);
         OnFwd(OUT_A, TURNSPEED);
       }
 
-      //else if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1) {
-      else if(sensor_3 < THRESHOLD2){
+      //else if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1)
+      if(sensor_3 < THRESHOLD2) {
         OnFwdSync(OUT_AB, 0, 0);
-            if (turn_right) {
+        if (turn_right) {
 
-              RotateMotorEx(OUT_AB, 40, 140, 100, true, true);
+        RotateMotorEx(OUT_AB, 40, 165, 100, true, true); // old turn 140, new 150
+
+        intersection_reached = false;
+        while(intersection_reached == false){
+
+          SetSensorLight(IN_1); // Line follower
+          SetSensorLight(IN_2); // Line follower
+          SetSensorLight(IN_3); // Segment sensor
+
+          sensor_1 = Sensor(IN_1);
+          sensor_2 = Sensor(IN_2);
+          sensor_3 = Sensor(IN_3);
 
 
-              intersection_reached = false;
-              while(intersection_reached == false){
+        	if(sensor_1 > THRESHOLD1 && sensor_2 > THRESHOLD1){
+        	  OnFwdSync(OUT_AB, SPEED, 0);
+        	}
 
-                SetSensorLight(IN_1); // Line follower
-                SetSensorLight(IN_2); // Line follower
-                SetSensorLight(IN_3); // Segment sensor
+          if(sensor_1 > THRESHOLD1){
+            OnFwd(OUT_A, TURNSPEED_SMALL);
+            OnFwd(OUT_B, TURNSPEED);
+          }
 
-                sensor_1 = Sensor(IN_1);
-                sensor_2 = Sensor(IN_2);
-                sensor_3 = Sensor(IN_3);
-
-
-        		  if(sensor_1 > THRESHOLD1 && sensor_2 > THRESHOLD1){
-        			  OnFwdSync(OUT_AB, SPEED, 0);
-        		  }
-
-              if(sensor_1 > THRESHOLD1){
-                OnFwd(OUT_A, 0);
-                OnFwd(OUT_B, TURNSPEED);
-              }
-
-              if(sensor_2 > THRESHOLD1){
-              	OnFwd(OUT_B, 0);
-              	OnFwd(OUT_A, TURNSPEED);
-              }
-              if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1){
-                turn_complete = true;
-                Wait(150);
-                OnFwdSync(OUT_AB, 0, 0);
-              }
-            }
+          if(sensor_2 > THRESHOLD1){
+          	OnFwd(OUT_B, TURNSPEED_SMALL);
+          	OnFwd(OUT_A, TURNSPEED);
+          }
+          if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1){
+            turn_complete = true;
             intersection_reached = true;
-
+            Wait(150);
+            OnFwdSync(OUT_AB, 0, 0);
             }
+          }
+        }
 
-            if (turn_left) {
+        if (turn_left) {
 
-              RotateMotorEx(OUT_AB, 50, 140, -100, true, true);
-
-
-              intersection_reached = false;
-              while(intersection_reached == false){
-
-                SetSensorLight(IN_1); // Line follower
-                SetSensorLight(IN_2); // Line follower
-                SetSensorLight(IN_3); // Segment sensor
-
-                sensor_1 = Sensor(IN_1);
-                sensor_2 = Sensor(IN_2);
-                sensor_3 = Sensor(IN_3);
+          RotateMotorEx(OUT_AB, 50, 165, -100, true, true);  // old turn = 140, new 150
 
 
-        		  if(sensor_1 > THRESHOLD1 && sensor_2 > THRESHOLD1){
-        			  OnFwdSync(OUT_AB, SPEED, 0);
-        		  }
+          intersection_reached = false;
+          while(intersection_reached == false){
 
-              if(sensor_1 > THRESHOLD1){
-                OnFwd(OUT_A, 0);
-                OnFwd(OUT_B, TURNSPEED);
-              }
+            SetSensorLight(IN_1); // Line follower
+            SetSensorLight(IN_2); // Line follower
+            SetSensorLight(IN_3); // Segment sensor
 
-              if(sensor_2 > THRESHOLD1){
-              	OnFwd(OUT_B, 0);
-              	OnFwd(OUT_A, TURNSPEED);
-              }
-              if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1){
-                turn_complete = true;
-                Wait(150);
-                OnFwdSync(OUT_AB, 0, 0);
-              }
+            sensor_1 = Sensor(IN_1);
+            sensor_2 = Sensor(IN_2);
+            sensor_3 = Sensor(IN_3);
+
+
+     		   if(sensor_1 > THRESHOLD1 && sensor_2 > THRESHOLD1){
+        		OnFwdSync(OUT_AB, SPEED, 0);
+           }
+
+           if(sensor_1 > THRESHOLD1){
+            OnFwd(OUT_A, TURNSPEED_SMALL);
+            OnFwd(OUT_B, TURNSPEED);
+           }
+
+           if(sensor_2 > THRESHOLD1){
+            OnFwd(OUT_B, TURNSPEED_SMALL);
+            OnFwd(OUT_A, TURNSPEED);
             }
+           if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1){
+            turn_complete = true;
             intersection_reached = true;
-
-            }
+            line_follow = false;
+            Wait(150);
+            OnFwdSync(OUT_AB, 0, 0);
+           }
+          }
+        }
       }
     }
     busy = false;
@@ -329,14 +327,15 @@ sub turn_behaviour(char lastmove, char current, bool busy){
   }
 }
 
+
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
 
 //-----------------------------------------------------------------------------
 //----------------------------------Reverse------------------------------------
-sub reverse_behaviour(char lastmove, char current, bool busy){
 
+sub reverse_behaviour(char lastmove, char current, bool busy){
 
   switch(lastmove){
     case 'U':
@@ -398,27 +397,30 @@ if (reverse && !busy) {
 
     //  Backwards linefollow for a short while (needs to be corected for backwards movement)
 
-    for (int i = 0; i < 100; i++) { // dummy counter, adjust...
-      SetSensorLight(IN_1); // Line follower
-      SetSensorLight(IN_2); // Line follower
-      SetSensorLight(IN_3); // Segment sensor
+    //for (int i = 0; i < 350; i++) { // dummy counter, adjust...
+    //  SetSensorLight(IN_1); // Line follower
+    //  SetSensorLight(IN_2); // Line follower
+    //  SetSensorLight(IN_3); // Segment sensor
 
-      sensor_1 = Sensor(IN_1);
-      sensor_2 = Sensor(IN_2);
-      sensor_3 = Sensor(IN_3);
-      if(sensor_1 > THRESHOLD1 && sensor_2 > THRESHOLD1){
-        OnFwdSync(OUT_AB, -SPEED, 0);
-      }
+    //  sensor_1 = Sensor(IN_1);
+    //  sensor_2 = Sensor(IN_2);
+    //  sensor_3 = Sensor(IN_3);
 
-      else if(sensor_1 > THRESHOLD1){
-        OnFwd(OUT_B, 0);
-        OnFwd(OUT_A, -TURNSPEED);
-      }
-      else if(sensor_2 > THRESHOLD1){
-        OnFwd(OUT_A, 0);
-        OnFwd(OUT_B, - TURNSPEED);
-      }
-    }
+    //  if(sensor_1 > THRESHOLD1 && sensor_2 > THRESHOLD1){
+    //    OnFwdSync(OUT_AB, -SPEED, 0);
+    //  }
+
+    //  else if(sensor_1 > THRESHOLD1){
+    //    OnFwd(OUT_B, 0); // Could have TURNSPEED_SMALL
+    //    OnFwd(OUT_A, -TURNSPEED);
+    //  }
+    //  else if(sensor_2 > THRESHOLD1){
+    //    OnFwd(OUT_A, 0); // Could have TURNSPEED_SMALL
+    //    OnFwd(OUT_B, -TURNSPEED);
+    //  }
+    //}
+
+    RotateMotor(OUT_AB,-45, 190); // backwards movement
 
 
     // Perform the 180 degree turn - turns until linefollow sensors are on to of
@@ -427,21 +429,22 @@ if (reverse && !busy) {
     //while (!turn_reverse) {
 
 
-      RotateMotorEx(OUT_AB, 50, 170, 100, true, true); // Adjust
+      RotateMotorEx(OUT_AB, 45, 270, 100, true, true); // Adjust
 
-      /*
-      RotateMotorEx(OUT_AB, 25, 10, 100, true, true);
 
-      if (sensor_2 < THRESHOLD1) {
-        if (sensor_2 > THRESHOLD1) {
-          turn_reverse = true;
-        }
-      }
-      */
-    }
+      //RotateMotorEx(OUT_AB, 25, 10, 100, true, true);
+
+      //if (sensor_2 < THRESHOLD1) {
+      //  if (sensor_2 > THRESHOLD1) {
+      //    turn_reverse = true;
+      //  }
+      //}
+
+
 
     // Line follow to next segment
-      while(intersection_reached == false){
+    intersection_reached = false;
+      while(!intersection_reached){
 
         SetSensorLight(IN_1); // Line follower
         SetSensorLight(IN_2); // Line follower
@@ -463,12 +466,12 @@ if (reverse && !busy) {
         }
 
         else if(sensor_1 > THRESHOLD1){
-          OnFwd(OUT_A, 0);
+          OnFwd(OUT_A, 0); // Could have TURNSPEED_SMALL
           OnFwd(OUT_B, TURNSPEED);
         }
 
         else if(sensor_2 > THRESHOLD1){
-          OnFwd(OUT_B, 0);
+          OnFwd(OUT_B, 0); // Could have TURNSPEED_SMALL
           OnFwd(OUT_A, TURNSPEED);
         }
       }
@@ -477,7 +480,7 @@ if (reverse && !busy) {
     busy = false;
     reverse_complete = true;
     reverse = false;
-}
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -489,8 +492,8 @@ if (reverse && !busy) {
 //-----------------------------------------------------------------------------
 task main(){
 
-     plan = "UD";
-     lastmove = 'P';
+     plan = "URUDLD";
+     //lastmove = 'U';
 
      if(StrIndex(plan,0) == 'U')
       lastmove = 'U';
@@ -511,7 +514,7 @@ task main(){
 
           follow_line(lastmove, plan[i], busy);
           turn_behaviour(lastmove, plan[i], busy);
-          //reverse_behaviour(lastmove ,plan[i], busy);
+          reverse_behaviour(lastmove ,plan[i], busy);
 
         //test[0] = StrIndex(plan,i);
         //if (StrIndex(plan,0) == 'U')
@@ -521,5 +524,5 @@ task main(){
           lastmove = plan[i];
 
         }
-        OnFwdSync(OUT_AB, 0, 0);
+        //OnFwdSync(OUT_AB, 0, 0);
       }
