@@ -1,0 +1,169 @@
+
+
+int i = 0;
+
+int prev_count;
+
+char prev;
+char curr;
+char next;
+
+bool line_follow_short = false;
+
+string plan = "UURLDU";
+
+
+task main(){
+
+  while(true){
+    SetSensorLight(IN_1); // Line follower
+    SetSensorLight(IN_2); // Line follower
+    SetSensorLight(IN_3); // Segment sensor
+
+    sensor_1 = Sensor(IN_1);
+    sensor_2 = Sensor(IN_2);
+    sensor_3 = Sensor(IN_3);
+
+    switch(STATE){
+      case READ_COMMAND:
+        prev_count = (i-1 > 0 ? i -1 : 0);
+
+        prev = plan[prev_count];
+        curr = plan[i];
+        next = plan[i+1];
+
+        switch (prev) {
+          case 'U':
+            switch (curr) {
+              case 'U':
+                STATE = LINE_FOLLOW;
+              break;
+
+              case 'D':
+                STATE = REVERSE;
+              break;
+
+              case 'L':
+                STATE: TURN_LEFT;
+              break;
+
+              case 'R':
+                STATE = TURN_RIGHT;
+              break;
+            }
+          break;
+
+          case 'D':
+            switch (curr) {
+              case 'U':
+                STATE = REVERSE;
+              break;
+
+              case 'D':
+                STATE = LINE_FOLLOW;
+              break;
+
+              case 'L':
+                STATE: TURN_RIGHT;
+              break;
+
+              case 'R':
+                STATE = TURN_LEFT;
+              break;
+            }
+          break;
+
+          case 'L':
+          switch (curr) {
+            case 'U':
+              STATE = TURN_RIGHT;
+            break;
+
+            case 'D':
+              STATE = TURN_LEFT;
+            break;
+
+            case 'L':
+              STATE: LINE_FOLLOW;
+            break;
+
+            case 'R':
+              STATE = REVERSE;
+            break;
+          }
+          break;
+
+          case 'R':
+          switch (curr) {
+            case 'U':
+              STATE = TURN_LEFT;
+            break;
+
+            case 'D':
+              STATE = TURN_RIGHT;
+            break;
+
+            case 'L':
+              STATE: REVERSE;
+            break;
+
+            case 'R':
+              STATE = LINE_FOLLOW;
+            break;
+          }
+
+          break;
+        }
+
+        i++;
+        break;
+
+        case TURN_RIGHT:
+          if(line_follow_short){
+            RotateMotorEx(OUT_AB, 40, 165, 100, true, true); // old turn 140, new 150
+            line_follow_short = false;
+            STATE = LINE_FOLLOW;
+          }
+          substate = RIGHT;
+          STATE = LINE_FOLLOW_SHORT;
+        break;
+
+        case TURN_LEFT:
+          if(line_follow_short){
+            RotateMotorEx(OUT_AB, 40, 165, -100, true, true); // old turn 140, new 150
+            line_follow_short = false;
+            STATE = LINE_FOLLOW;
+          }
+          substate = LEFT;
+          STATE = LINE_FOLLOW_SHORT;
+        break;
+
+        case REVERSE:
+        // backwards linefollow with sensor_3 as stopsensor. , rotates 180 degrees, sets line_follow_short = true;
+        break;
+
+        case LINE_FOLLOW:
+        // PID controller for forward line follow, stops at sensor 1 & 2 < THRESHOLD1
+
+        STATE = READ_COMMAND;
+        break;
+
+        case LINE_FOLLOW_SHORT
+        // PID controller for forward line follow, stops at sensor 3 < THRESHOLD2
+
+        switch(substate){
+          case LEFT:
+            line_follow_short = true;
+            STATE = TURN_LEFT;
+          break;
+
+          case RIGHT:
+            line_follow_short = true;
+            STATE = TURN_RIGHT;
+          break;
+        }
+
+        break;
+      }
+    }
+}
