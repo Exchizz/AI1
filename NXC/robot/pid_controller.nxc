@@ -1,0 +1,100 @@
+#define P 1
+#define I 0.000025
+#define D 100
+
+#define THRESHOLD1 40
+#define THRESHOLD2 30
+
+// Sensors
+int sensor_1; // Line follower
+int sensor_2; // Line follower
+int sensor_3; // Segment sensor
+
+int actual_position;
+int set_point;
+int error;
+int previous_error;
+
+int proportional;
+int integral;
+int derivative;
+int result;
+
+int right;
+int left;
+int speed;
+
+int dt = 25;
+
+bool intersection_reached = false;
+
+
+sub pid_linefollower(){
+
+  set_point = sensor_1;  //When sensors are on line
+
+  intersection_reached = false;
+
+  while (!intersection_reached) {
+
+    SetSensorLight(IN_1); // Line follower
+    SetSensorLight(IN_2); // Line follower
+    SetSensorLight(IN_3); // Segment sensor
+
+    sensor_1 = Sensor(IN_1);
+    sensor_2 = Sensor(IN_2);
+    sensor_3 = Sensor(IN_3);
+
+    actual_position = sensor_1;  // See if sensors are on the line 
+
+    error = set_point - actual_position;
+
+    proportional = P * error;
+    integral = I + error;
+    derivative = (error - previous_error) / dt;
+
+    result = proportional + I * dt * integral + D * derivative;
+
+    previous_error = error;
+
+    left = speed - result;                        // adjust left wheel
+    right = speed + result;                       // adjust right wheel
+
+      // Adjust the left and right motor value.
+     if (left >   100) left  =  100;
+     if (left <  -100) left  = -100;
+     if (right >  100) right =  100;
+     if (right < -100) right = -100;
+
+
+    if (left < 0 )                              // check direction (OnFwd statement can't have negative input)
+      {
+         OnFwd(OUT_A,-left);
+       }
+     else
+       {
+         OnRev(OUT_A,left);
+       }
+
+
+     if (right < 0 )                              // check direction (OnFwd statement cann't have negative input)
+       {
+         OnFwd(OUT_B,-right);
+       }
+      else
+        {
+          OnRev(OUT_B,right);
+        }
+
+     if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1) {
+          intersection_reached = true;
+        }
+     Wait(dt);
+  }
+
+
+}
+
+task main(){
+
+}
