@@ -2,9 +2,13 @@
 #define THRESHOLD1 40 // light sensor threshold
 #define THRESHOLD2 37
 
-#define P 1
+#define P 0.6
 #define I 0.000025
-#define D 20
+#define D 10
+
+#define P_s 0.3
+#define I_s 0.000025
+#define D_s 1
 
 // PID line follower parameters
 int actual_position;
@@ -58,7 +62,7 @@ bool linefollow_3_reached = false;
 
 
 // the master plan
-string plan = "URRDUR";
+string plan = "URDLURDL";
 int line_follow_count = 0;
 
 task main(){
@@ -173,7 +177,7 @@ task main(){
 
         case TURN_RIGHT:
           if(line_follow_short){
-            RotateMotorEx(OUT_AB, 40, 200, 100, true, true); // old turn 140, new 150
+            RotateMotorEx(OUT_AB, 40, 155, 100, true, true); // old turn 140, new 150
             line_follow_short = false;
             STATE = LINE_FOLLOW;
           }
@@ -185,7 +189,7 @@ task main(){
 
         case TURN_LEFT:
           if(line_follow_short){
-            RotateMotorEx(OUT_AB, 40, 170, -100, true, true); // old turn 140, new 150
+            RotateMotorEx(OUT_AB, 40, 155, -100, true, true); // old turn 140, new 150
             line_follow_short = false;
             STATE = LINE_FOLLOW;
           }
@@ -212,8 +216,9 @@ task main(){
 
             if (sensor_3 < THRESHOLD2) {
                  linefollow_3_reached = true;
-                 Wait(150);
+                 //Wait(150);
                  OnFwdSync(OUT_AB,0,0);
+                 break;
                }
 
 
@@ -259,7 +264,7 @@ task main(){
 
              Wait(dt);
           }
-          RotateMotorEx(OUT_AB, 40, 160, -100, true, true);
+          RotateMotorEx(OUT_AB, 40, 240, -100, true, true);
           line_follow_short = true;
           STATE = READ_COMMAND;
 
@@ -274,8 +279,6 @@ task main(){
           previous_error = error;
           while (!linefollow_12_reached) {
 
-
-
             SetSensorLight(IN_1); // Line follower
             SetSensorLight(IN_2); // Line follower
             SetSensorLight(IN_3); // Segment sensor
@@ -287,10 +290,10 @@ task main(){
             if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1) {
               //TextOut(0,LCD_LINE1,NumToStr(line_follow_count));
               linefollow_12_reached = true;
-              left = 0;
-              right = 0;
+
               //Wait(150);
                 OnFwdSync(OUT_AB, 0, 0);
+                break;
              }
 
 
@@ -358,17 +361,19 @@ task main(){
 
             if (sensor_3 < THRESHOLD2) {
                  linefollow_3_reached = true;
-                 Wait(150);
+                 //Wait(150);
                  OnFwdSync(OUT_AB,0,0);
+                 break;
+                 //Wait(1000);
                }
 
             error = sensor_1 - sensor_2;
 
-            proportional = P * error;
-            integral = I + error;
+            proportional = P_s * error;
+            integral = I_s + error;
             derivative = (error - previous_error) / dt;
 
-            result = proportional + I * dt * integral + D * derivative;
+            result = proportional + I * dt * integral + D_s * derivative;
 
             previous_error = error;
 
