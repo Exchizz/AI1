@@ -1,10 +1,10 @@
 // Defines
-#define THRESHOLD1 35 // light sensor threshold
-#define THRESHOLD2 30
+#define THRESHOLD1 40 // light sensor threshold
+#define THRESHOLD2 37
 
 #define P 1
 #define I 0.000025
-#define D 100
+#define D 20
 
 // PID line follower parameters
 int actual_position;
@@ -58,7 +58,7 @@ bool linefollow_3_reached = false;
 
 
 // the master plan
-string plan = "LLUU";
+string plan = "URRDUR";
 int line_follow_count = 0;
 
 task main(){
@@ -79,7 +79,7 @@ task main(){
 
         prev = plan[prev_count];
         curr = plan[i];
-        next = plan[i+1];
+        //next = plan[i+1];
 
         i++;
 
@@ -173,7 +173,7 @@ task main(){
 
         case TURN_RIGHT:
           if(line_follow_short){
-            RotateMotorEx(OUT_AB, 40, 165, 100, true, true); // old turn 140, new 150
+            RotateMotorEx(OUT_AB, 40, 200, 100, true, true); // old turn 140, new 150
             line_follow_short = false;
             STATE = LINE_FOLLOW;
           }
@@ -185,7 +185,7 @@ task main(){
 
         case TURN_LEFT:
           if(line_follow_short){
-            RotateMotorEx(OUT_AB, 40, 165, -100, true, true); // old turn 140, new 150
+            RotateMotorEx(OUT_AB, 40, 170, -100, true, true); // old turn 140, new 150
             line_follow_short = false;
             STATE = LINE_FOLLOW;
           }
@@ -209,6 +209,12 @@ task main(){
             sensor_1 = Sensor(IN_1);
             sensor_2 = Sensor(IN_2);
             sensor_3 = Sensor(IN_3);
+
+            if (sensor_3 < THRESHOLD2) {
+                 linefollow_3_reached = true;
+                 Wait(150);
+                 OnFwdSync(OUT_AB,0,0);
+               }
 
 
             error = sensor_1 - sensor_2;
@@ -250,11 +256,7 @@ task main(){
                   OnRev(OUT_B,right); //OnRev(OUT_B,right);
                 }
 
-             if (sensor_3 < THRESHOLD2) {
-                  linefollow_3_reached = true;
-                  Wait(150);
-                  OnFwdSync(OUT_AB,0,0);
-                }
+
              Wait(dt);
           }
           RotateMotorEx(OUT_AB, 40, 160, -100, true, true);
@@ -266,11 +268,13 @@ task main(){
 
         case LINE_FOLLOW:
         // PID controller for forward line follow, stops at sensor 1 & 2 < THRESHOLD1
-          line_follow_count++;
+          //line_follow_count++;
 
           linefollow_12_reached = false;
           previous_error = error;
           while (!linefollow_12_reached) {
+
+
 
             SetSensorLight(IN_1); // Line follower
             SetSensorLight(IN_2); // Line follower
@@ -279,6 +283,17 @@ task main(){
             sensor_1 = Sensor(IN_1);
             sensor_2 = Sensor(IN_2);
             sensor_3 = Sensor(IN_3);
+
+            if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1) {
+              //TextOut(0,LCD_LINE1,NumToStr(line_follow_count));
+              linefollow_12_reached = true;
+              left = 0;
+              right = 0;
+              //Wait(150);
+                OnFwdSync(OUT_AB, 0, 0);
+             }
+
+
 
             error = sensor_1 - sensor_2;
 
@@ -302,29 +317,24 @@ task main(){
 
             if (left < 0 )                              // check direction (OnFwd statement can't have negative input)
               {
-               OnFwd(OUT_B,left);  //OnFwd(OUT_A,-left);
+               OnFwd(OUT_A,left);  //OnFwd(OUT_A,-left);
               }
             else
               {
-               OnRev(OUT_B,-left);   //OnRev(OUT_A,left);
+               OnRev(OUT_A,-left);   //OnRev(OUT_A,left);
               }
 
 
              if (right < 0 )                              // check direction (OnFwd statement cann't have negative input)
               {
-               OnFwd(OUT_A,right);   //OnFwd(OUT_B,-right);
+               OnFwd(OUT_B,right);   //OnFwd(OUT_B,-right);
               }
             else
               {
-                OnRev(OUT_A,-right);   //OnRev(OUT_B,right);
+                OnRev(OUT_B,-right);   //OnRev(OUT_B,right);
               }
 
-             if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1) {
-               TextOut(0,LCD_LINE1,NumToStr(line_follow_count));
-               linefollow_12_reached = true;
-               Wait(150);
-               OnFwdSync(OUT_AB,0,0);
-              }
+
              Wait(dt);
           }
 
@@ -345,6 +355,12 @@ task main(){
             sensor_1 = Sensor(IN_1);
             sensor_2 = Sensor(IN_2);
             sensor_3 = Sensor(IN_3);
+
+            if (sensor_3 < THRESHOLD2) {
+                 linefollow_3_reached = true;
+                 Wait(150);
+                 OnFwdSync(OUT_AB,0,0);
+               }
 
             error = sensor_1 - sensor_2;
 
@@ -368,28 +384,24 @@ task main(){
 
              if (left < 0 )                              // check direction (OnFwd statement can't have negative input)
                {
-                OnFwd(OUT_B,left);  //OnFwd(OUT_A,-left);
+                OnFwd(OUT_A,left);  //OnFwd(OUT_A,-left);
                }
              else
                {
-                OnRev(OUT_B,-left);   //OnRev(OUT_A,left);
+                OnRev(OUT_A,-left);   //OnRev(OUT_A,left);
                }
 
 
               if (right < 0 )                              // check direction (OnFwd statement cann't have negative input)
                {
-                OnFwd(OUT_A,right);   //OnFwd(OUT_B,-right);
+                OnFwd(OUT_B,right);   //OnFwd(OUT_B,-right);
                }
              else
                {
-                 OnRev(OUT_A,-right);   //OnRev(OUT_B,right);
+                 OnRev(OUT_B,-right);   //OnRev(OUT_B,right);
                }
 
-             if (sensor_3 < THRESHOLD2) {
-                  linefollow_3_reached = true;
-                  Wait(150);
-                  OnFwdSync(OUT_AB,0,0);
-                }
+
              Wait(dt);
           }
 
