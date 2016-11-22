@@ -1,14 +1,14 @@
 // Defines
 #define THRESHOLD1 40 // light sensor threshold
-#define THRESHOLD2 37
+#define THRESHOLD2 30
 
-#define P 0.6
-#define I 0.000025
+#define P 0.4
+#define I 0
 #define D 10
 
-#define P_s 0.3
-#define I_s 0.000025
-#define D_s 1
+#define P_s 0.4
+#define I_s 0
+#define D_s 10
 
 // PID line follower parameters
 int actual_position;
@@ -22,7 +22,7 @@ int result;
 
 int right;
 int left;
-int speed = 50;
+int speed = 50 ;
 
 int dt = 25;
 
@@ -62,7 +62,7 @@ bool linefollow_3_reached = false;
 
 
 // the master plan
-string plan = "URDLURDL";
+string plan = "UUUUUU";
 int line_follow_count = 0;
 
 task main(){
@@ -177,7 +177,7 @@ task main(){
 
         case TURN_RIGHT:
           if(line_follow_short){
-            RotateMotorEx(OUT_AB, 40, 155, 100, true, true); // old turn 140, new 150
+            RotateMotorEx(OUT_AB, 40, 160, 100, true, true); // old turn 140, new 150
             line_follow_short = false;
             STATE = LINE_FOLLOW;
           }
@@ -189,7 +189,7 @@ task main(){
 
         case TURN_LEFT:
           if(line_follow_short){
-            RotateMotorEx(OUT_AB, 40, 155, -100, true, true); // old turn 140, new 150
+            RotateMotorEx(OUT_AB, 40, 160, -100, true, true); // old turn 140, new 150
             line_follow_short = false;
             STATE = LINE_FOLLOW;
           }
@@ -291,7 +291,7 @@ task main(){
               //TextOut(0,LCD_LINE1,NumToStr(line_follow_count));
               linefollow_12_reached = true;
 
-              //Wait(150);
+                Wait(150);
                 OnFwdSync(OUT_AB, 0, 0);
                 break;
              }
