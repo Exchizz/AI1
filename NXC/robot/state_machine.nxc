@@ -196,7 +196,7 @@ task main(){
           break;
 
         case REVERSE:
-        // backwards linefollow with sensor_1 & 2 as stopsensor. , rotates 180 degrees sets STATE = READ_COMMAND;
+        // backwards linefollow with sensor_3 as stopsensor. , rotates 180 degrees, sets line_follow_short = true, sets STATE = READ_COMMAND;
 
           linefollow_3_reached = false;
           previous_error = error;
@@ -250,7 +250,7 @@ task main(){
                   OnRev(OUT_B,right); //OnRev(OUT_B,right);
                 }
 
-             if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1) {
+             if (sensor_3 < THRESHOLD2) {
                   linefollow_3_reached = true;
                   Wait(150);
                   OnFwdSync(OUT_AB,0,0);
@@ -258,6 +258,7 @@ task main(){
              Wait(dt);
           }
           RotateMotorEx(OUT_AB, 40, 160, -100, true, true);
+          line_follow_short = true;
           STATE = READ_COMMAND;
 
 
