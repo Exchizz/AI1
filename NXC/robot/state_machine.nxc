@@ -1,6 +1,6 @@
 // Defines
-#define THRESHOLD1 30 // light sensor threshold
-#define THRESHOLD2 30
+#define THRESHOLD1 20 // light sensor threshold
+#define THRESHOLD2 20
 
 #define P 0.4
 #define I 0.0002
@@ -25,6 +25,10 @@ float left;
 float speed = 40 ;
 
 int dt = 20;
+
+// Turn and rotation variables
+int ReverseRotation = 230;
+int TurnRotation = 160;
 
 // Sensors
 int sensor_1; // Line follower
@@ -65,16 +69,23 @@ bool linefollow_3_reached = false;
 string plan = "UUUURDDDDL";
 int line_follow_count = 0;
 
-task main(){
+
+// Light Sensor Averages
+float sensor_1_slow = 0;
+float sensor_2_slow = 0;
+float sensor_3_slow = 0;
+
+float sensor_1_fast = 0;
+float sensor_2_fast = 0;
+float sensor_3_fast = 0;
+// weights for averages
+float alpha_fast = 4.5;
+float alpha_slow = 1.5;
+
+
+task state_machine(){
 
   while(true){
-    SetSensorLight(IN_1); // Line follower
-    SetSensorLight(IN_2); // Line follower
-    SetSensorLight(IN_3); // Segment sensor
-
-    sensor_1 = Sensor(IN_1);
-    sensor_2 = Sensor(IN_2);
-    sensor_3 = Sensor(IN_3);
 
     switch(STATE){
       case READ_COMMAND:
@@ -87,8 +98,6 @@ task main(){
 
         i++;
 
-        //TextOut(0,LCD_LINE1,NumToStr(line_follow_count));
-        //Wait(100);
         switch (prev) {
           case 'U':
             switch (curr) {
@@ -177,7 +186,7 @@ task main(){
 
         case TURN_RIGHT:
           if(line_follow_short){
-            RotateMotorEx(OUT_AB, 40, 160, 100, true, true); // old turn 140, new 150
+            RotateMotorEx(OUT_AB, 40, TurnRotation, 100, true, true); // old turn 140, new 150
             line_follow_short = false;
             //TextOut(LCD_LINE1,0,"debug");
             STATE = LINE_FOLLOW;
@@ -190,7 +199,7 @@ task main(){
 
         case TURN_LEFT:
           if(line_follow_short){
-            RotateMotorEx(OUT_AB, 40, 160, -100, true, true); // old turn 140, new 150
+            RotateMotorEx(OUT_AB, 40, TurnRotation, -100, true, true); // old turn 140, new 150
             line_follow_short = false;
             STATE = LINE_FOLLOW;
           }
@@ -203,17 +212,10 @@ task main(){
         case REVERSE:
         // backwards linefollow with sensor_3 as stopsensor. , rotates 180 degrees, sets line_follow_short = true, sets STATE = READ_COMMAND;
 
-          linefollow_3_reached = false;
+          //linefollow_3_reached = false;
           previous_error = error;
-          while (Sensor(IN_3) < THRESHOLD2) {
-
-            SetSensorLight(IN_1); // Line follower
-            SetSensorLight(IN_2); // Line follower
-            SetSensorLight(IN_3); // Segment sensor
-
-            sensor_1 = Sensor(IN_1);
-            sensor_2 = Sensor(IN_2);
-            //sensor_3 = Sensor(IN_3);
+          while (abs(sensor_3_slow - sensor_3_fast) < THRESHOLD2) {
+          //while (Sensor(IN_3) < THRESHOLD2) {
 
             error = sensor_1 - sensor_2;
 
@@ -257,9 +259,9 @@ task main(){
 
              Wait(dt);
           }
-          linefollow_3_reached = true;
+          //linefollow_3_reached = true;
           //Wait(150);
-          RotateMotorEx(OUT_AB, 40, 240, -100, true, true);
+          RotateMotorEx(OUT_AB, 40, ReverseRotation, -100, true, true);
           line_follow_short = true;
           STATE = READ_COMMAND;
 
@@ -268,34 +270,23 @@ task main(){
 
         case LINE_FOLLOW:
         // PID controller for forward line follow, stops at sensor 1 & 2 < THRESHOLD1
-          //line_follow_count++;
-          //TextOut(LCD_LINE1,0," ");
 
-          linefollow_12_reached = false;
+
+          //linefollow_12_reached = false;
           previous_error = error;
           line_follow_short = false;
           //while (!(Sensor(IN_1) < THRESHOLD1 && Sensor(IN_2) < THRESHOLD1)) {
-          while (!linefollow_12_reached) {
+          while (1) {
 
-
-            SetSensorLight(IN_1); // Line follower
-            SetSensorLight(IN_2); // Line follower
-            SetSensorLight(IN_3); // Segment sensor
-
-            sensor_1 = Sensor(IN_1);
-            sensor_2 = Sensor(IN_2);
-            sensor_3 = Sensor(IN_3);
-
-            if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1) {
+            if (abs(sensor_1_slow - sensor_1_fast) > THRESHOLD1 && abs(sensor_2_slow - sensor_2_fast) > THRESHOLD1) {
+            //if (sensor_1_avg < THRESHOLD1 && sensor_2_avg < THRESHOLD1) {
               //TextOut(0,LCD_LINE1,NumToStr(line_follow_count));
-              linefollow_12_reached = true;
+              //linefollow_12_reached = true;
 
                 Wait(150);
                 OnFwdSync(OUT_AB, 0, 0);
                 break;
              }
-
-
 
             error = sensor_1 - sensor_2;
 
@@ -346,20 +337,12 @@ task main(){
         case LINE_FOLLOW_SHORT:
         // PID controller for forward line follow, stops at sensor 3 < THRESHOLD2
 
-          linefollow_3_reached = false;
+          //linefollow_3_reached = false;
           previous_error = error;
-          while (!linefollow_3_reached) {
+          while (1) {
 
-            SetSensorLight(IN_1); // Line follower
-            SetSensorLight(IN_2); // Line follower
-            SetSensorLight(IN_3); // Segment sensor
-
-            sensor_1 = Sensor(IN_1);
-            sensor_2 = Sensor(IN_2);
-            sensor_3 = Sensor(IN_3);
-
-            if (sensor_3 < THRESHOLD2) {
-                 linefollow_3_reached = true;
+            if (abs(sensor_3_slow - sensor_3_fast) < THRESHOLD2) {
+                 //linefollow_3_reached = true;
                  //Wait(150);
                  OnFwdSync(OUT_AB,0,0);
                  break;
@@ -404,8 +387,6 @@ task main(){
                {
                  OnRev(OUT_B,-right);   //OnRev(OUT_B,right);
                }
-
-
              Wait(dt);
           }
 
@@ -423,4 +404,32 @@ task main(){
           break;
           }
     }
+}
+
+
+task light_sensor(){
+  while(true){
+    SetSensorLight(IN_1); // Line follower
+    SetSensorLight(IN_2); // Line follower
+    SetSensorLight(IN_3); // Segment sensor
+
+    sensor_1 = Sensor(IN_1);
+    sensor_2 = Sensor(IN_2);
+    sensor_3 = Sensor(IN_3);
+
+    sensor_1_fast = (alpha_fast * sensor_1) + (1.0 - alpha_fast) * sensor_1_fast; //fast
+    sensor_2_fast = (alpha_fast * sensor_2) + (1.0 - alpha_fast) * sensor_2_fast; //fast
+    sensor_3_fast = (alpha_fast * sensor_3) + (1.0 - alpha_fast) * sensor_3_fast; //fast
+
+    sensor_1_slow = (alpha_slow * sensor_1) + (1.0 - alpha_slow) * sensor_1_slow; //slow
+    sensor_2_slow = (alpha_slow * sensor_2) + (1.0 - alpha_slow) * sensor_2_slow; //slow
+    sensor_3_slow = (alpha_slow * sensor_3) + (1.0 - alpha_slow) * sensor_3_slow; //slow
+
+  }
+}
+
+task main(){
+
+  Precedes(light_sensor, state_machine);
+
 }
