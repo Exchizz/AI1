@@ -27,7 +27,7 @@ float speed = 50 ;
 int dt = 20;
 
 // Turn and rotation variables
-int ReverseRotation = 290;
+int ReverseRotation = 270;
 int TurnRotation = 160;
 
 // Sensors
@@ -76,7 +76,7 @@ bool last = false;
 
 
 // the master plan
-string plan = "UUUU";
+string plan = "UUUUDDDD";
 int line_follow_count = 0;
 
 
@@ -237,7 +237,24 @@ task state_machine(){
 
           //linefollow_3_reached = false;
           previous_error = error;
-          while (sensor_3 < THRESHOLD2) {
+          while (1) {
+
+            if( sensor_3 < THRESHOLD2){
+              current = true;
+            } else {
+              current = false;
+            }
+
+            if(last == false && current == true) {
+                OnFwdSync(OUT_AB, 0, 0);
+                PlayTone(1000, 100);
+                //PlaySound(SOUND_DOUBLE_BEEP);
+                //Wait(500);
+                last = current;
+                break;
+             }
+            last = current;
+
           //while (Sensor(IN_3) < THRESHOLD2) {
 
             error = sensor_1 - sensor_2;
@@ -309,15 +326,6 @@ task state_machine(){
 
 
             if(last == false && current == true) {
-
-
-//            if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1)  {
-            //if (sensor_1_avg < THRESHOLD1 && sensor_2_avg < THRESHOLD1) {
-              //TextOut(0,LCD_LINE1,NumToStr(line_follow_count));
-
-              //linefollow_12_reached = true;
-
-                //Wait(150);
                 OnFwdSync(OUT_AB, 0, 0);
                 PlayTone(1000, 100);
                 //PlaySound(SOUND_DOUBLE_BEEP);
