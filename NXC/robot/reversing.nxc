@@ -1,0 +1,72 @@
+#define P 0.5
+#define I 0.000
+#define D 0.02
+
+#define THRESHOLD1 35
+#define THRESHOLD2 30
+
+// substates
+int substate;
+#define RIGHT 7
+#define LEFT 8
+
+
+int i = 0;        // iterator in plan
+int prev_count;   // prev count check integer (iterator)
+
+// READ_COMMAND variables, previous, current and next command in plan
+char prev;
+char curr;
+char next;
+
+// bools for line following
+bool line_follow_short = false;
+bool linefollow_12_reached = false;
+bool linefollow_3_reached = false;
+
+bool current = false;
+bool last = false;
+
+
+bool reverse_right = false;
+bool reverse_left = false;
+bool reverse_total = false;
+
+
+
+// PID line follower parameters
+int actual_position;
+int error;
+int previous_error;
+
+float proportional;
+float integral;
+float derivative;
+float result;
+
+float right;
+float left;
+float speed = 40 ;
+
+int dt = 20;
+
+// Sensors
+
+float sensor_1; // Line follower
+float sensor_2; // Line follower
+float sensor_3; // Segment sensor
+
+float sensor_1_last = 0; // Line follower
+float sensor_2_last = 0; // Line follower
+float sensor_3_last = 0; // Segment sensor
+
+
+
+task main(){
+
+
+    OnRevSync(OUT_AB, 30, 0);
+    Wait(1000);
+  //  RotateMotorEx(OUT_AB, 75, 0, 50, true, true);
+    RotateMotorEx(OUT_AB, 50, 270, -100, true, true);
+    }
