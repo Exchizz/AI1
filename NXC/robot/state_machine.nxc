@@ -10,6 +10,10 @@
 #define I_s I
 #define D_s D
 
+#define REVERSE_ROTATION 270
+#define TURN_ROTATION 180
+#define TURN_REVERSE 140
+
 // PID line follower parameters
 int actual_position;
 int error;
@@ -26,13 +30,7 @@ float speed = 50 ;
 
 int dt = 20;
 
-// Turn and rotation variables
-int ReverseRotation = 270;
-int TurnRotation = 160;
-
 // Sensors
-
-
 
 float sensor_1; // Line follower
 float sensor_2; // Line follower
@@ -50,6 +48,9 @@ int STATE = 1; // initialized as READ_COMMAND
 #define REVERSE 4
 #define LINE_FOLLOW 5
 #define LINE_FOLLOW_SHORT 6
+#define REVERSE_ROTATE 9
+#define REVERSE_LEFT 10
+#define REVERSE_RIGHT 11
 
 
 // substates
@@ -75,8 +76,12 @@ bool current = false;
 bool last = false;
 
 
+bool reverse_right = false;
+bool reverse_left = false;
+bool reverse_total = false;
+
 // the master plan
-string plan = "UUUUDDDD";
+string plan = "UUDR";
 int line_follow_count = 0;
 
 
@@ -94,7 +99,6 @@ float alpha_fast = 0.8;
 float alpha_slow = 0.5;
 
 bool sampleRun = false;
-int count = 0;
 
 task state_machine(){
 
@@ -114,9 +118,7 @@ task state_machine(){
         }
         prev = plan[prev_count];
         curr = plan[i];
-        //next = plan[i+1];
-        count ++;
-        //TextOut(0,LCD_LINE6, NumToStr(count));
+        next = plan[i+1];
 
         i++;
 
@@ -144,6 +146,7 @@ task state_machine(){
           case 'D':
             switch (curr) {
               case 'U':
+
                 STATE = REVERSE;
               break;
 
@@ -192,6 +195,7 @@ task state_machine(){
             break;
 
             case 'L':
+
               STATE = REVERSE;
             break;
 
@@ -207,9 +211,8 @@ task state_machine(){
 
         case TURN_RIGHT:
           if(line_follow_short){
-            RotateMotorEx(OUT_AB, 40, TurnRotation, 100, true, true); // old turn 140, new 150
+            RotateMotorEx(OUT_AB, 40, TURN_ROTATION, 100, true, true);
             line_follow_short = false;
-            //TextOut(LCD_LINE1,0,"debug");
             STATE = LINE_FOLLOW;
           }
           else{
@@ -221,7 +224,7 @@ task state_machine(){
 
         case TURN_LEFT:
           if(line_follow_short){
-            RotateMotorEx(OUT_AB, 40, TurnRotation, -100, true, true); // old turn 140, new 150
+            RotateMotorEx(OUT_AB, 40, TURN_ROTATION, -100, true, true);
             line_follow_short = false;
             STATE = LINE_FOLLOW;
           }
@@ -233,9 +236,6 @@ task state_machine(){
           break;
 
         case REVERSE:
-        // backwards linefollow with sensor_3 as stopsensor. , rotates 180 degrees, sets line_follow_short = true, sets STATE = READ_COMMAND;
-
-          //linefollow_3_reached = false;
           previous_error = error;
           while (1) {
 
@@ -248,14 +248,10 @@ task state_machine(){
             if(last == false && current == true) {
                 OnFwdSync(OUT_AB, 0, 0);
                 PlayTone(1000, 100);
-                //PlaySound(SOUND_DOUBLE_BEEP);
-                //Wait(500);
                 last = current;
                 break;
              }
             last = current;
-
-          //while (Sensor(IN_3) < THRESHOLD2) {
 
             error = sensor_1 - sensor_2;
 
@@ -299,23 +295,97 @@ task state_machine(){
 
              Wait(dt);
           }
-          //linefollow_3_reached = true;
-          //Wait(150);
-          RotateMotorEx(OUT_AB, 50, ReverseRotation, -100, true, true);
-          line_follow_short = true;
-          STATE = READ_COMMAND;
 
+          switch(curr){
+            case 'R':
+              if(next == 'U'){
+                STATE = REVERSE_RIGHT;
+              }
+              else if (next == 'D'){
+                STATE = REVERSE_LEFT;
+              }
+              else if(next == 'L'){
+                STATE = REVERSE_ROTATE;
+              }
 
+              break;
+            case 'L':
+              if(next == 'U'){
+                STATE = REVERSE_LEFT;
+              }
+              else if (next == 'D'){
+                STATE = REVERSE_RIGHT;
+              }
+              else if(next == 'L'){
+                STATE = REVERSE_ROTATE;
+              }
+
+              break;
+            case 'U':
+              if(next == 'R'){
+                STATE = REVERSE_LEFT;
+              }
+              else if (next == 'L'){
+                STATE = REVERSE_RIGHT;
+              }
+              else if(next == 'U'){
+                STATE = REVERSE_ROTATE;
+              }
+
+              break;
+            case 'D':
+              if(next == 'R'){
+                STATE = REVERSE_RIGHT;
+              }
+              else if (next == 'L'){
+                STATE = REVERSE_LEFT;
+              }
+              else if(next == 'D'){
+                STATE = REVERSE_ROTATE;
+              }
+
+            }
+
+          /*
+          if(reverse_right){
+            line_follow_short = true;
+            RotateMotorEx(OUT_AB, 50, ReverseRotation, -100, true, true);
+            //STATE = TURN_RIGHT;
+            TextOut(0, LCD_LINE1, "right");
+            Wait(500);
+          }
+          else if(reverse_left){
+            line_follow_short = true;
+            //STATE = TURN_LEFT;
+          }
+          else if(reverse_total){
+            RotateMotorEx(OUT_AB, 50, ReverseRotation, -100, true, true);
+            line_follow_short = true;
+            reverse_total = false;
+          }*/
+
+        case REVERSE_LEFT:
+          RotateMotorEx(OUT_AB, 40, TURN_REVERSE, 100, true, true);
+          i++;
+          STATE = LINE_FOLLOW;
+          break;
+
+        case REVERSE_RIGHT:
+          RotateMotorEx(OUT_AB, 40, TURN_REVERSE, -100, true, true);
+          i++;
+          STATE = LINE_FOLLOW;
+          break;
+
+        case REVERSE_ROTATE:
+          RotateMotorEx(OUT_AB, 50, REVERSE_ROTATION, -100, true, true);
+          i++;
+          STATE = LINE_FOLLOW;
           break;
 
         case LINE_FOLLOW:
-        // PID controller for forward line follow, stops at sensor 1 & 2 < THRESHOLD1
-
-
-          linefollow_12_reached = false;
           previous_error = error;
           line_follow_short = false;
-          //while (!(Sensor(IN_1) < THRESHOLD1 && Sensor(IN_2) < THRESHOLD1)) {
+
           while (1) {
 
             if( sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1){
@@ -328,8 +398,6 @@ task state_machine(){
             if(last == false && current == true) {
                 OnFwdSync(OUT_AB, 0, 0);
                 PlayTone(1000, 100);
-                //PlaySound(SOUND_DOUBLE_BEEP);
-                //Wait(500);
                 last = current;
                 break;
              }
@@ -385,20 +453,23 @@ task state_machine(){
           break;
 
         case LINE_FOLLOW_SHORT:
-        // PID controller for forward line follow, stops at sensor 3 < THRESHOLD2
-
-          //linefollow_3_reached = false;
-
           previous_error = error;
           while (1) {
 
-            if ( sensor_3 < THRESHOLD2) {
-                 //linefollow_3_reached = true;
-                 //Wait(150);
-                 OnFwdSync(OUT_AB,0,0);
-                 break;
-                 //Wait(1000);
-               }
+            if( sensor_3 < THRESHOLD2){
+              current = true;
+            } else {
+              current = false;
+            }
+
+
+            if(last == false && current == true) {
+                OnFwdSync(OUT_AB, 0, 0);
+                PlayTone(2000, 100);
+                last = current;
+                break;
+             }
+            last = current;
 
             error = sensor_1 - sensor_2;
 
