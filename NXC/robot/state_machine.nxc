@@ -1,6 +1,6 @@
 // Defines
-#define THRESHOLD1 40// light sensor threshold
-#define THRESHOLD2 40
+float THRESHOLD1 = 30;//40// light sensor threshold
+float THRESHOLD2 = 20; //40
 
 #define P 0.5
 #define I 0.000
@@ -12,7 +12,7 @@
 
 #define REVERSE_ROTATION 270
 #define TURN_ROTATION 180
-#define TURN_REVERSE 140
+#define TURN_REVERSE 120
 
 // PID line follower parameters
 int actual_position;
@@ -81,7 +81,8 @@ bool reverse_left = false;
 bool reverse_total = false;
 
 // the master plan
-string plan = "UUDR";
+string plan = "RRLURRLLDLDDRUUDRRRLLUUDRRRRRRLURRDDLUUDLLLDDLUUDLURRRRRLUURRDLLRRDDLUUDLLUULLLDDDULDRRLLLLURRRLLURRLDRRRRRRLLUULLLDDULDRRRRLDRUUUDDLDDLUUDLUR";
+//string plan = "UDDDD"
 int line_follow_count = 0;
 
 
@@ -210,8 +211,9 @@ task state_machine(){
         break;
 
         case TURN_RIGHT:
+        PlayTone(3000,100);
           if(line_follow_short){
-            RotateMotorEx(OUT_AB, 40, TURN_ROTATION, 100, true, true);
+            RotateMotorEx(OUT_AB, 50, TURN_ROTATION, 100, true, true);
             line_follow_short = false;
             STATE = LINE_FOLLOW;
           }
@@ -223,8 +225,9 @@ task state_machine(){
           break;
 
         case TURN_LEFT:
+        PlayTone(3000,100);
           if(line_follow_short){
-            RotateMotorEx(OUT_AB, 40, TURN_ROTATION, -100, true, true);
+            RotateMotorEx(OUT_AB, 50, TURN_ROTATION, -100, true, true);
             line_follow_short = false;
             STATE = LINE_FOLLOW;
           }
@@ -236,6 +239,7 @@ task state_machine(){
           break;
 
         case REVERSE:
+        PlayTone(3000,100);
           previous_error = error;
           while (1) {
 
@@ -247,7 +251,7 @@ task state_machine(){
 
             if(last == false && current == true) {
                 OnFwdSync(OUT_AB, 0, 0);
-                PlayTone(1000, 100);
+                //PlayTone(1000, 100);
                 last = current;
                 break;
              }
@@ -345,7 +349,7 @@ task state_machine(){
               }
 
             }
-
+            break;
           /*
           if(reverse_right){
             line_follow_short = true;
@@ -365,24 +369,29 @@ task state_machine(){
           }*/
 
         case REVERSE_LEFT:
-          RotateMotorEx(OUT_AB, 40, TURN_REVERSE, 100, true, true);
+          PlayTone(3000,100);
+          RotateMotorEx(OUT_AB, 50, TURN_REVERSE, -100, true, true);
+          //PlayTone(3000,100);
           i++;
           STATE = LINE_FOLLOW;
           break;
 
         case REVERSE_RIGHT:
-          RotateMotorEx(OUT_AB, 40, TURN_REVERSE, -100, true, true);
+          PlayTone(3000,100);
+          RotateMotorEx(OUT_AB, 50, TURN_REVERSE, 100, true, true);
           i++;
           STATE = LINE_FOLLOW;
           break;
 
         case REVERSE_ROTATE:
+          PlayTone(3000,100);
           RotateMotorEx(OUT_AB, 50, REVERSE_ROTATION, -100, true, true);
           i++;
           STATE = LINE_FOLLOW;
           break;
 
         case LINE_FOLLOW:
+          PlayTone(3000,100);
           previous_error = error;
           line_follow_short = false;
 
@@ -397,7 +406,7 @@ task state_machine(){
 
             if(last == false && current == true) {
                 OnFwdSync(OUT_AB, 0, 0);
-                PlayTone(1000, 100);
+                //PlayTone(1000, 100);
                 last = current;
                 break;
              }
@@ -453,6 +462,7 @@ task state_machine(){
           break;
 
         case LINE_FOLLOW_SHORT:
+
           previous_error = error;
           while (1) {
 
@@ -465,7 +475,7 @@ task state_machine(){
 
             if(last == false && current == true) {
                 OnFwdSync(OUT_AB, 0, 0);
-                PlayTone(2000, 100);
+                //PlayTone(2000, 100);
                 last = current;
                 break;
              }
@@ -530,15 +540,58 @@ task state_machine(){
 
 
 task light_sensor(){
+
+  SetSensorLight(IN_1); // Line follower
+  SetSensorLight(IN_2); // Line follower
+  SetSensorLight(IN_3); // Segment sensor
+
+  float avg_sensor_1 = 0;
+  float avg_sensor_2 = 0;
+  float avg_sensor_3_white = 0;
+  float avg_sensor_3_black = 0;
+
+  for(int i = 0; i < 10; i++){
+    sensor_1 = Sensor(IN_1);
+    sensor_2 = Sensor(IN_2);
+    sensor_3 = Sensor(IN_3);
+
+    avg_sensor_1 +=sensor_1;
+    avg_sensor_2 +=sensor_2;
+    avg_sensor_3_white +=sensor_3;
+
+  }
+
+  avg_sensor_1/=10;
+  avg_sensor_2/=10;
+  avg_sensor_3_white/=10;
+
+  THRESHOLD1 = (avg_sensor_1 + avg_sensor_2) / 2;
+  PlayTone(1000,200);
+  Wait(3000);
+
+  for(int i = 0; i < 10; i++){
+    sensor_3 = Sensor(IN_3);
+    avg_sensor_3_black +=sensor_3;
+  }
+    avg_sensor_3_black/=10;
+    THRESHOLD2 = (avg_sensor_3_white + avg_sensor_3_black) / 2;
+
+    PlayTone(1000,100);
+    TextOut(0,LCD_LINE2, NumToStr(THRESHOLD1));
+    TextOut(0,LCD_LINE3, NumToStr(THRESHOLD2));
+    Wait(1000);
+
+
+
   while(true){
-    SetSensorLight(IN_1); // Line follower
-    SetSensorLight(IN_2); // Line follower
-    SetSensorLight(IN_3); // Segment sensor
+
 
 
     sensor_1 = Sensor(IN_1);
     sensor_2 = Sensor(IN_2);
     sensor_3 = Sensor(IN_3);
+
+
 
     sensor_1_fast = (alpha_fast * sensor_1) + (1.0 - alpha_fast) * sensor_1_fast; //fast
     sensor_2_fast = (alpha_fast * sensor_2) + (1.0 - alpha_fast) * sensor_2_fast; //fast
