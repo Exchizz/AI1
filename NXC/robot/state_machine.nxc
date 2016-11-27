@@ -1,10 +1,10 @@
 // Defines
-#define THRESHOLD1 20 // light sensor threshold
-#define THRESHOLD2 20
+#define THRESHOLD1 40// light sensor threshold
+#define THRESHOLD2 40
 
-#define P 0.4
-#define I 0.0002
-#define D 5
+#define P 0.5
+#define I 0.000
+#define D 0
 
 #define P_s P
 #define I_s I
@@ -22,18 +22,25 @@ float result;
 
 float right;
 float left;
-float speed = 40 ;
+float speed = 50 ;
 
 int dt = 20;
 
 // Turn and rotation variables
-int ReverseRotation = 230;
+int ReverseRotation = 290;
 int TurnRotation = 160;
 
 // Sensors
-int sensor_1; // Line follower
-int sensor_2; // Line follower
-int sensor_3; // Segment sensor
+
+
+
+float sensor_1; // Line follower
+float sensor_2; // Line follower
+float sensor_3; // Segment sensor
+
+float sensor_1_last = 0; // Line follower
+float sensor_2_last = 0; // Line follower
+float sensor_3_last = 0; // Segment sensor
 
 // states
 int STATE = 1; // initialized as READ_COMMAND
@@ -64,9 +71,12 @@ bool line_follow_short = false;
 bool linefollow_12_reached = false;
 bool linefollow_3_reached = false;
 
+bool current = false;
+bool last = false;
+
 
 // the master plan
-string plan = "UUUURDDDDL";
+string plan = "UUUU";
 int line_follow_count = 0;
 
 
@@ -78,12 +88,17 @@ float sensor_3_slow = 0;
 float sensor_1_fast = 0;
 float sensor_2_fast = 0;
 float sensor_3_fast = 0;
-// weights for averages
-float alpha_fast = 4.5;
-float alpha_slow = 1.5;
 
+// weights for averages
+float alpha_fast = 0.8;
+float alpha_slow = 0.5;
+
+bool sampleRun = false;
+int count = 0;
 
 task state_machine(){
+
+  while(!sampleRun);
 
   while(true){
 
@@ -92,9 +107,16 @@ task state_machine(){
 
         prev_count = (i-1 > 0 ? i -1 : 0);
 
+        if(i >= ArrayLen(plan) -1){
+          TextOut(0,LCD_LINE1, "End of Plan");
+          OnFwdSync(OUT_AB, 0, 0);
+          Wait(10000);
+        }
         prev = plan[prev_count];
         curr = plan[i];
         //next = plan[i+1];
+        count ++;
+        //TextOut(0,LCD_LINE6, NumToStr(count));
 
         i++;
 
@@ -177,7 +199,6 @@ task state_machine(){
               STATE = LINE_FOLLOW;
             break;
           }
-
           break;
         }
 
@@ -193,6 +214,7 @@ task state_machine(){
           }
           else{
           substate = RIGHT;
+
           STATE = LINE_FOLLOW_SHORT;
         }
           break;
@@ -205,6 +227,7 @@ task state_machine(){
           }
           else{
           substate = LEFT;
+
           STATE = LINE_FOLLOW_SHORT;
         }
           break;
@@ -214,7 +237,7 @@ task state_machine(){
 
           //linefollow_3_reached = false;
           previous_error = error;
-          while (abs(sensor_3_slow - sensor_3_fast) < THRESHOLD2) {
+          while (sensor_3 < THRESHOLD2) {
           //while (Sensor(IN_3) < THRESHOLD2) {
 
             error = sensor_1 - sensor_2;
@@ -261,7 +284,7 @@ task state_machine(){
           }
           //linefollow_3_reached = true;
           //Wait(150);
-          RotateMotorEx(OUT_AB, 40, ReverseRotation, -100, true, true);
+          RotateMotorEx(OUT_AB, 50, ReverseRotation, -100, true, true);
           line_follow_short = true;
           STATE = READ_COMMAND;
 
@@ -272,21 +295,40 @@ task state_machine(){
         // PID controller for forward line follow, stops at sensor 1 & 2 < THRESHOLD1
 
 
-          //linefollow_12_reached = false;
+          linefollow_12_reached = false;
           previous_error = error;
           line_follow_short = false;
           //while (!(Sensor(IN_1) < THRESHOLD1 && Sensor(IN_2) < THRESHOLD1)) {
           while (1) {
 
-            if (abs(sensor_1_slow - sensor_1_fast) > THRESHOLD1 && abs(sensor_2_slow - sensor_2_fast) > THRESHOLD1) {
+            if( sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1){
+              current = true;
+            } else {
+              current = false;
+            }
+
+
+            if(last == false && current == true) {
+
+
+//            if (sensor_1 < THRESHOLD1 && sensor_2 < THRESHOLD1)  {
             //if (sensor_1_avg < THRESHOLD1 && sensor_2_avg < THRESHOLD1) {
               //TextOut(0,LCD_LINE1,NumToStr(line_follow_count));
+
               //linefollow_12_reached = true;
 
-                Wait(150);
+                //Wait(150);
                 OnFwdSync(OUT_AB, 0, 0);
+                PlayTone(1000, 100);
+                //PlaySound(SOUND_DOUBLE_BEEP);
+                //Wait(500);
+                last = current;
                 break;
              }
+            last = current;
+            sensor_1_last = sensor_1; // Line follower
+            sensor_2_last = sensor_2; // Segment sensor
+            sensor_3_last = sensor_3;
 
             error = sensor_1 - sensor_2;
 
@@ -338,10 +380,11 @@ task state_machine(){
         // PID controller for forward line follow, stops at sensor 3 < THRESHOLD2
 
           //linefollow_3_reached = false;
+
           previous_error = error;
           while (1) {
 
-            if (abs(sensor_3_slow - sensor_3_fast) < THRESHOLD2) {
+            if ( sensor_3 < THRESHOLD2) {
                  //linefollow_3_reached = true;
                  //Wait(150);
                  OnFwdSync(OUT_AB,0,0);
@@ -413,6 +456,7 @@ task light_sensor(){
     SetSensorLight(IN_2); // Line follower
     SetSensorLight(IN_3); // Segment sensor
 
+
     sensor_1 = Sensor(IN_1);
     sensor_2 = Sensor(IN_2);
     sensor_3 = Sensor(IN_3);
@@ -424,6 +468,20 @@ task light_sensor(){
     sensor_1_slow = (alpha_slow * sensor_1) + (1.0 - alpha_slow) * sensor_1_slow; //slow
     sensor_2_slow = (alpha_slow * sensor_2) + (1.0 - alpha_slow) * sensor_2_slow; //slow
     sensor_3_slow = (alpha_slow * sensor_3) + (1.0 - alpha_slow) * sensor_3_slow; //slow
+
+
+
+    sampleRun = true;
+
+
+    //TextOut(0,LCD_LINE2, "sensor_1_fast and sensor_1_slow: ");
+    //TextOut(0,LCD_LINE3, NumToStr(sensor_1_fast));
+    //TextOut(0,LCD_LINE4, ", ");
+    //TextOut(0,LCD_LINE5, NumToStr(sensor_1_slow));
+
+    //Wait(1000);
+
+
 
   }
 }
