@@ -101,6 +101,16 @@ float alpha_slow = 0.5;
 
 bool sampleRun = false;
 
+Tone sweepUp[] = {
+  TONE_C4, MS_50,
+  TONE_E4, MS_50,
+  TONE_G4, MS_50,
+  TONE_C5, MS_50,
+  TONE_E5, MS_50,
+  TONE_G5, MS_50,
+  TONE_C6, MS_200
+};
+
 task state_machine(){
 
   while(!sampleRun);
@@ -115,6 +125,7 @@ task state_machine(){
         if(i >= ArrayLen(plan) -1){
           TextOut(0,LCD_LINE1, "End of Plan");
           OnFwdSync(OUT_AB, 0, 0);
+          PlayTones(sweepUp);
           Wait(10000);
         }
         prev = plan[prev_count];
@@ -122,6 +133,7 @@ task state_machine(){
         next = plan[i+1];
 
         i++;
+        PlayTone(2000,100);
 
         switch (prev) {
           case 'U':
