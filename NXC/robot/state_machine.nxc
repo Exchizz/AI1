@@ -240,10 +240,10 @@ task state_machine(){
 
         case REVERSE:
 
-        OnRevSync(OUT_AB, 50, 0);
-        Wait(600);
+        OnRevSync(OUT_AB, 70, 0);  //Backwards movement, (output, output_power, turnpct (needs to be 0))
+        Wait(400);
 
-        RotateMotorEx(OUT_AB, 50, 270, -100, true, true);
+        RotateMotorEx(OUT_AB, 70, REVERSE_ROTATION, -100, true, true); // 180 degrees spin, (output, output_power, degrees of motor spin, turnpct, sync set true, stop set true)
         STATE = LINE_FOLLOW;
 
           /*previous_error = error;

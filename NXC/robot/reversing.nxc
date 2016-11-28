@@ -65,8 +65,8 @@ float sensor_3_last = 0; // Segment sensor
 task main(){
 
 
-    OnRevSync(OUT_AB, 30, 0);
-    Wait(1000);
+    OnRevSync(OUT_AB, 70, 0);
+    Wait(400);
   //  RotateMotorEx(OUT_AB, 75, 0, 50, true, true);
-    RotateMotorEx(OUT_AB, 50, 270, -100, true, true);
+    RotateMotorEx(OUT_AB, 70, 270, -100, true, true);
     }
