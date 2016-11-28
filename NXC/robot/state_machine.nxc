@@ -211,7 +211,7 @@ task state_machine(){
         break;
 
         case TURN_RIGHT:
-        PlayTone(3000,100);
+        //PlayTone(3000,100);
           if(line_follow_short){
             RotateMotorEx(OUT_AB, 50, TURN_ROTATION, 100, true, true);
             line_follow_short = false;
@@ -225,7 +225,7 @@ task state_machine(){
           break;
 
         case TURN_LEFT:
-        PlayTone(3000,100);
+        //PlayTone(3000,100);
           if(line_follow_short){
             RotateMotorEx(OUT_AB, 50, TURN_ROTATION, -100, true, true);
             line_follow_short = false;
@@ -239,8 +239,14 @@ task state_machine(){
           break;
 
         case REVERSE:
-        PlayTone(3000,100);
-          previous_error = error;
+
+        OnRevSync(OUT_AB, 50, 0);
+        Wait(600);
+
+        RotateMotorEx(OUT_AB, 50, 270, -100, true, true);
+        STATE = LINE_FOLLOW;
+
+          /*previous_error = error;
           while (1) {
 
             if( sensor_3 < THRESHOLD2){
@@ -256,6 +262,7 @@ task state_machine(){
                 break;
              }
             last = current;
+
 
             error = sensor_1 - sensor_2;
 
@@ -298,9 +305,9 @@ task state_machine(){
 
 
              Wait(dt);
-          }
+          }*/
 
-          switch(curr){
+          /*switch(curr){
             case 'R':
               if(next == 'U'){
                 STATE = REVERSE_RIGHT;
@@ -350,6 +357,8 @@ task state_machine(){
 
             }
             break;
+
+          */
           /*
           if(reverse_right){
             line_follow_short = true;
@@ -368,7 +377,7 @@ task state_machine(){
             reverse_total = false;
           }*/
 
-        case REVERSE_LEFT:
+        /*case REVERSE_LEFT:
           PlayTone(3000,100);
           RotateMotorEx(OUT_AB, 50, TURN_REVERSE, -100, true, true);
           //PlayTone(3000,100);
@@ -389,9 +398,9 @@ task state_machine(){
           i++;
           STATE = LINE_FOLLOW;
           break;
-
+*/
         case LINE_FOLLOW:
-          PlayTone(3000,100);
+          //PlayTone(3000,100);
           previous_error = error;
           line_follow_short = false;
 
